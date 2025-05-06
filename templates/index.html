@@ -1,0 +1,107 @@
+{% extends "layout.html" %}
+
+{% block title %}Take the Challenge{% endblock %}
+
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-md-7">
+        <div class="card hero-card">
+            <div class="card-body">
+                <h1 class="card-title mb-4">
+                    Take India's Hardest Brain Challenge!
+                </h1>
+                <p class="fs-5">
+                    Answer 10 of the toughest questions and get a chance to <strong>WIN an iPhone 16 Pro 512GB</strong> (completely free, no strings attached).
+                </p>
+                <p class="fs-4 mb-4 highlight-text">
+                    Only the sharpest minds will conquer this quiz!
+                </p>
+                <a href="{{ url_for('quiz') }}" class="btn btn-primary btn-lg start-btn">
+                    <i class="fas fa-play-circle me-2"></i> Start Quiz
+                </a>
+                <p class="small text-muted mt-3">
+                    <em>Winners selected via lucky draw. <a href="{{ url_for('terms') }}">Terms apply</a>.</em>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="features-list">
+            <div class="feature-item">
+                <i class="feature-icon fas fa-question-circle"></i>
+                <div>
+                    <h4>Challenging Questions</h4>
+                    <p>Test your knowledge about Indian history, culture, science, and more!</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="feature-icon fas fa-share-alt"></i>
+                <div>
+                    <h4>Share Your Results</h4>
+                    <p>Challenge your friends and family to beat your score!</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="feature-icon fas fa-trophy"></i>
+                <div>
+                    <h4>Win Big Prizes</h4>
+                    <p>Get a chance to win an iPhone 16 Pro just for participating!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card stats-card">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="stats-number">8.5M+</h3>
+                        <p class="stats-label">Quiz Takers</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="stats-number">57%</h3>
+                        <p class="stats-label">Average Score</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="stats-number">12</h3>
+                        <p class="stats-label">Winners So Far</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="testimonials mt-5">
+    <h3 class="text-center mb-4">What Quiz Takers Are Saying</h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "The hardest quiz I've ever taken! I scored 8/10 and I'm a college professor!"
+                </div>
+                <div class="testimonial-author">- Dr. Rajesh K.</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "I couldn't believe how challenging these questions were. Truly a test for your brain!"
+                </div>
+                <div class="testimonial-author">- Priya S.</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "I won the iPhone last month! I still can't believe it - all from taking a quiz!"
+                </div>
+                <div class="testimonial-author">- Vikram M.</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

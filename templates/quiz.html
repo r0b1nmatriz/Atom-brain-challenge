@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block title %}Quiz{% endblock %}
+
+{% block content %}
+<div class="quiz-container">
+    <div class="card quiz-card">
+        <div class="card-header">
+            <h2>India's Hardest Brain Challenge</h2>
+            <p class="text-muted mb-0">Answer all 10 questions to complete the challenge!</p>
+        </div>
+        <div class="card-body">
+            <form id="quizForm" action="{{ url_for('submit_quiz') }}" method="post">
+                {% for i in range(questions|length) %}
+                {% set question = questions[i] %}
+                <div class="question-container" id="question{{ i }}" {% if i > 0 %}style="display: none;"{% endif %}>
+                    <div class="question-header">
+                        <span class="question-number">Question {{ i+1 }}/{{ questions|length }}</span>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ (i+1) / questions|length * 100 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="question-text my-4">{{ question.question }}</h4>
+                    
+                    <div class="options-container">
+                        {% for j in range(4) %}
+                        {% set option = ['A', 'B', 'C', 'D'][j] %}
+                        <div class="form-check option-item">
+                            <input class="form-check-input" type="radio" name="q{{ i }}" id="q{{ i }}option{{ option }}" value="{{ option }}" required>
+                            <label class="form-check-label" for="q{{ i }}option{{ option }}">
+                                <span class="option-letter">{{ option }}</span>
+                                <span class="option-text">{{ question.options[j] }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="question-navigation mt-4">
+                        {% if i > 0 %}
+                        <button type="button" class="btn btn-outline-secondary prev-btn" onclick="showQuestion({{ i-1 }})">
+                            <i class="fas fa-arrow-left me-2"></i> Previous
+                        </button>
+                        {% endif %}
+                        
+                        {% if i < questions|length - 1 %}
+                        <button type="button" class="btn btn-primary next-btn" onclick="nextQuestion({{ i }})">
+                            Next <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                        {% else %}
+                        <button type="submit" class="btn btn-success submit-btn">
+                            <i class="fas fa-check-circle me-2"></i> Submit Answers
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+    
+    <div class="quiz-tips mt-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i> Quiz Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="tips-list">
+                    <li>Take your time to read each question carefully</li>
+                    <li>Trust your first instinct - it's often correct!</li>
+                    <li>Use the process of elimination for tough questions</li>
+                    <li>All questions must be answered to complete the quiz</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showQuestion(index) {
+        // Hide all questions
+        document.querySelectorAll('.question-container').forEach(q => {
+            q.style.display = 'none';
+        });
+        
+        // Show the selected question
+        document.getElementById('question' + index).style.display = 'block';
+        
+        // Scroll to top of quiz container
+        document.querySelector('.quiz-container').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function nextQuestion(currentIndex) {
+        // Check if current question is answered
+        const currentQuestion = document.getElementById('question' + currentIndex);
+        const radioButtons = currentQuestion.querySelectorAll('input[type="radio"]');
+        let answered = false;
+        
+        radioButtons.forEach(radio => {
+            if (radio.checked) {
+                answered = true;
+            }
+        });
+        
+        if (!answered) {
+            alert('Please select an answer before proceeding.');
+            return;
+        }
+        
+        // Show next question
+        showQuestion(currentIndex + 1);
+    }
+    
+    // Warn user before leaving page
+    window.addEventListener('beforeunload', function(e) {
+        const formChanged = document.querySelectorAll('input[type="radio"]:checked').length > 0;
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+</script>
+{% endblock %}

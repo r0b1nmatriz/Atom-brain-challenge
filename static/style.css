@@ -1,0 +1,421 @@
+/* Base Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.container {
+    max-width: 1140px;
+}
+
+/* Header Styles */
+.brain-title {
+    color: #ff6600;
+    font-weight: 700;
+}
+
+.brain-icon {
+    color: #ff6600;
+    margin-right: 10px;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #e55c00;
+    border-color: #e55c00;
+}
+
+.start-btn {
+    padding: 12px 30px;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+}
+
+.start-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Card Styles */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: none;
+    overflow: hidden;
+}
+
+.hero-card {
+    border-left: 5px solid #ff6600;
+    padding: 10px;
+}
+
+.hero-card .card-title {
+    color: #ff6600;
+    font-weight: 700;
+}
+
+.highlight-text {
+    color: #ff6600;
+    font-weight: 600;
+}
+
+/* Feature Items */
+.features-list {
+    margin-top: 20px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.feature-icon {
+    font-size: 24px;
+    color: #ff6600;
+    margin-right: 15px;
+    min-width: 36px;
+    text-align: center;
+}
+
+/* Stats Card */
+.stats-card {
+    margin-top: 30px;
+    background-color: #fff;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ff6600;
+}
+
+.stats-label {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Testimonials */
+.testimonials {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.testimonial-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.testimonial-content {
+    font-style: italic;
+    margin-bottom: 15px;
+    position: relative;
+    padding-left: 25px;
+}
+
+.testimonial-content::before {
+    content: '\201C';
+    font-size: 50px;
+    color: #ff6600;
+    position: absolute;
+    left: -15px;
+    top: -20px;
+    opacity: 0.3;
+}
+
+.testimonial-author {
+    font-weight: 600;
+    text-align: right;
+    color: #555;
+}
+
+/* Quiz Styles */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.quiz-card {
+    margin-bottom: 30px;
+}
+
+.quiz-card .card-header {
+    background-color: #ff6600;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.question-header {
+    margin-bottom: 20px;
+}
+
+.question-number {
+    font-weight: 600;
+    color: #ff6600;
+}
+
+.progress {
+    margin-top: 10px;
+}
+
+.progress-bar {
+    background-color: #ff6600;
+}
+
+.question-text {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.options-container {
+    margin: 25px 0;
+}
+
+.option-item {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    transition: all 0.2s;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+    border-color: #ff6600;
+}
+
+.option-letter {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background-color: #ff6600;
+    color: white;
+    border-radius: 50%;
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+.option-text {
+    font-size: 1.1rem;
+}
+
+.question-navigation {
+    display: flex;
+    justify-content: space-between;
+}
+
+.quiz-tips {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tips-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.tips-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+    position: relative;
+    padding-left: 25px;
+}
+
+.tips-list li:before {
+    content: '\f0eb';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+    color: #ff6600;
+}
+
+.tips-list li:last-child {
+    border-bottom: none;
+}
+
+/* Results Page Styles */
+.result-card {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.score-display {
+    margin: 40px 0;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: #ff6600;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(255, 102, 0, 0.3);
+}
+
+.score-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.result-message {
+    color: #333;
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+.share-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 30px 0;
+}
+
+.share-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.share-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.share-btn {
+    margin: 0 5px;
+    padding: 10px 20px;
+}
+
+.result-cta {
+    margin: 30px 0;
+}
+
+.prize-card, .challenge-card {
+    height: 100%;
+    transition: transform 0.3s;
+}
+
+.prize-card:hover, .challenge-card:hover {
+    transform: translateY(-5px);
+}
+
+.action-buttons {
+    margin-top: 30px;
+}
+
+.play-again-btn {
+    margin-right: 10px;
+}
+
+/* Terms Page Styles */
+.terms-section {
+    margin-bottom: 20px;
+}
+
+.terms-section h4 {
+    color: #ff6600;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* Other Quizzes Suggestion */
+.quiz-suggestion-card {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    text-align: center;
+}
+
+.quiz-suggestion-card h4 {
+    color: #ff6600;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* AdSense Placeholder */
+.ad-placeholder {
+    background-color: #f0f0f0;
+    border: 1px dashed #ccc;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    color: #888;
+    border-radius: 5px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .hero-card {
+        text-align: center;
+    }
+    
+    .feature-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .feature-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .share-buttons {
+        flex-direction: column;
+    }
+    
+    .share-btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .score-circle {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .score-number {
+        font-size: 2rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .play-again-btn, .home-btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
