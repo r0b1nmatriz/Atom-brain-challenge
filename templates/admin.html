@@ -1,0 +1,138 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="card admin-card">
+        <div class="card-header">
+            <h2><i class="fas fa-chart-line me-2"></i> Admin Dashboard</h2>
+            <p class="text-muted mb-0">Quiz Statistics and Analytics</p>
+        </div>
+        <div class="card-body">
+            
+            <!-- Stats Summary -->
+            <div class="row stats-summary mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ total_attempts }}</h3>
+                            <p>Total Quiz Attempts</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ avg_score|round(1) }}</h3>
+                            <p>Avg. Score (out of 10)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ avg_time|round(1) }}s</h3>
+                            <p>Avg. Completion Time</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>{{ high_scores }}</h3>
+                            <p>Perfect Scores</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Attempts Table -->
+            <div class="recent-attempts mb-4">
+                <h4 class="section-title"><i class="fas fa-history me-2"></i> Recent Attempts</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Session ID</th>
+                                <th>Score</th>
+                                <th>Time Taken</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in recent_attempts %}
+                            <tr>
+                                <td>{{ attempt.id }}</td>
+                                <td>{{ attempt.session_id[:8] }}...</td>
+                                <td>{{ attempt.score }}/{{ attempt.total_questions }}</td>
+                                <td>{{ attempt.time_taken_seconds }}s</td>
+                                <td>{{ attempt.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Score Distribution -->
+            <div class="score-distribution">
+                <h4 class="section-title"><i class="fas fa-chart-bar me-2"></i> Score Distribution</h4>
+                <div class="distribution-chart-container">
+                    <div class="chart-placeholder">
+                        <!-- This would be a real chart in production -->
+                        <div class="distribution-bars">
+                            {% for score, count in score_distribution %}
+                            <div class="score-bar-container">
+                                <div class="score-label">{{ score }}</div>
+                                <div class="score-bar" style="height: {{ (count / max_score_count * 100)|round }}%">
+                                    <span class="score-count">{{ count }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Actions -->
+    <div class="admin-actions mt-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-tools me-2"></i> Admin Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="action-buttons">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i> Back to Homepage
+                    </a>
+                    {% if display_mode != 'all' %}
+                    <a href="{{ url_for('admin', display='all') }}" class="btn btn-info">
+                        <i class="fas fa-list me-2"></i> View All Data
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('admin') }}" class="btn btn-info">
+                        <i class="fas fa-compress me-2"></i> View Summary
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
