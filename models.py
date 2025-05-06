@@ -1,6 +1,29 @@
 from datetime import datetime
 from app import db
 
+class User(db.Model):
+    """Model for storing user information for enrollment"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    address = db.Column(db.Text, nullable=True)
+    city = db.Column(db.String(50), nullable=True)
+    state = db.Column(db.String(50), nullable=True)
+    pin_code = db.Column(db.String(10), nullable=True)
+    enrollment_date = db.Column(db.DateTime, default=datetime.utcnow)
+    payment_status = db.Column(db.String(20), default='pending')  # pending, completed, failed
+    payment_id = db.Column(db.String(100), nullable=True)  # Razorpay payment ID
+    payment_order_id = db.Column(db.String(100), nullable=True)  # Razorpay order ID
+    payment_signature = db.Column(db.String(256), nullable=True)  # Razorpay signature
+    amount_paid = db.Column(db.Float, default=299.00)
+    
+    # Relationships
+    quiz_attempts = db.relationship('QuizAttempt', backref='user', lazy=True)
+    
+    def __repr__(self):
+        return f"<User {self.id}: {self.name}>"
+
 class QuizAttempt(db.Model):
     """Model for tracking user quiz attempts and scores"""
     id = db.Column(db.Integer, primary_key=True)
