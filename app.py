@@ -2,11 +2,40 @@ import os
 import uuid
 import logging
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 from quiz_generator import generate_quiz_questions
 from image_generator import create_result_image
 
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "hardbrainchallenge")
+
+# Configure the database
+database_url = os.environ.get("DATABASE_URL")
+# For debugging
+if not database_url:
+    logging.warning("DATABASE_URL not found in environment variables! Using SQLite fallback.")
+    database_url = "sqlite:///quiz_app.db"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+
+# Initialize the app with the extension
+db.init_app(app)
+
+# Import models and create tables
+with app.app_context():
+    import models
+    db.create_all()
+    logging.info("Database tables created!")
 
 # In-memory storage for caching questions
 question_cache = {}
@@ -50,6 +79,14 @@ def submit_quiz():
     questions = session['questions']
     score = 0
     user_answers = {}
+    
+    # Get time taken from form if present
+    time_taken = request.form.get('time_taken', None)
+    if time_taken:
+        try:
+            time_taken = int(time_taken)
+        except ValueError:
+            time_taken = None
     
     # Calculate score
     for i, question in enumerate(questions):
@@ -101,6 +138,28 @@ def submit_quiz():
     
     # Current app URL (for sharing)
     app_url = request.host_url.rstrip('/')
+    
+    # Save quiz attempt in database
+    try:
+        from models import QuizAttempt
+        
+        session_id = session.get('session_id', str(uuid.uuid4()))
+        quiz_attempt = QuizAttempt(
+            session_id=session_id,
+            score=score,
+            total_questions=len(questions),
+            time_taken_seconds=time_taken
+        )
+        
+        db.session.add(quiz_attempt)
+        db.session.commit()
+        
+        # Store quiz attempt ID in session for feedback later
+        session['quiz_attempt_id'] = quiz_attempt.id
+        logging.info(f"Saved quiz attempt: {quiz_attempt}")
+    except Exception as e:
+        logging.error(f"Error saving quiz attempt to database: {e}")
+        # Continue with the result page even if database save fails
     
     return render_template(
         'result.html', 

@@ -10,7 +10,13 @@
             <p class="text-muted mb-0">Answer all 10 questions to complete the challenge!</p>
         </div>
         <div class="card-body">
+            <div class="timer-container mb-3">
+                <div class="timer-badge">
+                    <i class="fas fa-stopwatch"></i> Time: <span id="quizTimer">00:00</span>
+                </div>
+            </div>
             <form id="quizForm" action="{{ url_for('submit_quiz') }}" method="post">
+                <input type="hidden" id="time_taken" name="time_taken" value="0">
                 {% for i in range(questions|length) %}
                 {% set question = questions[i] %}
                 <div class="question-container" id="question{{ i }}" {% if i > 0 %}style="display: none;"{% endif %}>
@@ -79,6 +85,34 @@
 
 {% block scripts %}
 <script>
+    // Timer variables
+    let startTime = new Date();
+    let timerInterval;
+    let totalSeconds = 0;
+    
+    function startTimer() {
+        const timerElement = document.getElementById('quizTimer');
+        const timeTakenInput = document.getElementById('time_taken');
+        
+        if (!timerElement) return;
+        
+        timerInterval = setInterval(function() {
+            totalSeconds += 1;
+            
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            // Update display
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update hidden form field with total seconds
+            timeTakenInput.value = totalSeconds;
+        }, 1000);
+    }
+    
+    // Start the timer immediately
+    startTimer();
+    
     function showQuestion(index) {
         // Hide all questions
         document.querySelectorAll('.question-container').forEach(q => {
@@ -112,6 +146,13 @@
         // Show next question
         showQuestion(currentIndex + 1);
     }
+    
+    // Handle form submission to ensure timer stops and time is recorded
+    document.getElementById('quizForm').addEventListener('submit', function() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+    });
     
     // Warn user before leaving page
     window.addEventListener('beforeunload', function(e) {
