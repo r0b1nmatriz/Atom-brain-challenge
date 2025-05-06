@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+import razorpay
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -36,6 +37,81 @@ with app.app_context():
     import models
     db.create_all()
     logging.info("Database tables created!")
+
+# Initialize Razorpay client
+razorpay_client = razorpay.Client(
+    auth=(os.environ.get('RAZORPAY_KEY_ID'), os.environ.get('RAZORPAY_KEY_SECRET'))
+)
+
+@app.route('/enroll')
+def enroll():
+    return render_template('enroll.html')
+
+@app.route('/process_enrollment', methods=['POST'])
+def process_enrollment():
+    try:
+        # Create user record
+        user = models.User(
+            name=request.form['name'],
+            email=request.form['email'],
+            phone=request.form['phone'],
+            address=request.form['address'],
+            city=request.form['city'],
+            state=request.form['state'],
+            pin_code=request.form['pin_code']
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        # Create Razorpay order
+        payment = razorpay_client.order.create({
+            'amount': 29900,  # Amount in paise
+            'currency': 'INR',
+            'payment_capture': '1'
+        })
+        
+        # Update user with order ID
+        user.payment_order_id = payment['id']
+        db.session.commit()
+        
+        return jsonify({
+            'order_id': payment['id'],
+            'amount': 29900,
+            'currency': 'INR',
+            'key': os.environ.get('RAZORPAY_KEY_ID')
+        })
+    except Exception as e:
+        logging.error(f"Error processing enrollment: {e}")
+        return jsonify({'error': 'Enrollment failed'}), 500
+
+@app.route('/payment_callback', methods=['POST'])
+def payment_callback():
+    try:
+        # Verify payment signature
+        params_dict = {
+            'razorpay_payment_id': request.form['razorpay_payment_id'],
+            'razorpay_order_id': request.form['razorpay_order_id'],
+            'razorpay_signature': request.form['razorpay_signature']
+        }
+        
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        
+        # Update user payment status
+        user = models.User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
+        if user:
+            user.payment_status = 'completed'
+            user.payment_id = request.form['razorpay_payment_id']
+            user.payment_signature = request.form['razorpay_signature']
+            db.session.commit()
+            
+            flash('Payment successful! You can now take the quiz.', 'success')
+            return redirect(url_for('quiz'))
+    except Exception as e:
+        logging.error(f"Payment verification failed: {e}")
+        flash('Payment verification failed. Please contact support.', 'error')
+        
+    return redirect(url_for('index'))
+
 
 # In-memory storage for caching questions
 question_cache = {}

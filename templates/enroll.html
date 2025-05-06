@@ -1,0 +1,52 @@
+
+{% extends "layout.html" %}
+
+{% block title %}Enroll Now{% endblock %}
+
+{% block content %}
+<div class="enroll-container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Enroll in Atom Brain Challenge</h2>
+            <p class="text-muted">One-time fee: ₹299</p>
+        </div>
+        <div class="card-body">
+            <form id="enrollmentForm" action="{{ url_for('process_enrollment') }}" method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="city" name="city">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="state" class="form-label">State</label>
+                        <input type="text" class="form-control" id="state" name="state">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="pin_code" class="form-label">PIN Code</label>
+                    <input type="text" class="form-control" id="pin_code" name="pin_code">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    Pay ₹299 and Enroll
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
