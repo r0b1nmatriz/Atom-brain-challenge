@@ -1,0 +1,53 @@
+
+Create a Python web app on Replit using Flask and Hugging Face’s DistilGPT-2 to generate a viral quiz called “India’s Hardest Brain Challenge.” The app should:
+
+1. **Homepage**:
+   - Display a professional, mobile-friendly UI with text: “Take India’s Hardest Brain Challenge! Answer 10 toughest questions and get a chance to WIN an iPhone 16 Pro 512GB (completely free, no strings attached). Only the sharpest minds will conquer this quiz!”
+   - Include a “Start Quiz” button and a subtle disclaimer: “Winners selected via lucky draw. Terms apply.”
+   - Add Google AdSense banner ads above and below the quiz form (use placeholder code for now).
+   - Use CSS for a clean, modern look (white background, bold orange buttons, Arial font).
+
+2. **Quiz Logic**:
+   - Generate 10 unique multiple-choice questions per user using DistilGPT-2. Questions should be challenging but fun, covering Indian trivia (e.g., “Which Indian city hosted the first IPL match?” or “What’s the chemical symbol for gold, named in ancient Indian texts?”).
+   - Prompt for AI: “Generate 10 hard multiple-choice questions with 4 options each, based on Indian culture, history, science, and pop culture. Include correct answers.”
+   - Store questions in Replit’s key-value database to avoid regenerating for the same session.
+   - Collect user answers via a Flask form (radio buttons).
+
+3. **Result Page**:
+   - Show a score (e.g., “You got 8/10! You’re a Brain Champion!”) and a shareable result: “I scored 8/10 on India’s Hardest Brain Challenge! Can you beat me? Try now and win an iPhone 16 Pro 512GB!”
+   - Use Pillow to overlay the result on a meme-style image (e.g., a trophy with Indian flag colors).
+   - Include a “Share on WhatsApp” button linking to the app URL: “https://wa.me/?text=[result]%20at%20[repl-url].repl.co”.
+   - Add a “Play Again” button to loop users, boosting ad impressions.
+   - Display another AdSense ad below the result.
+
+4. **Monetization**:
+   - Integrate AdSense code (placeholder for now) in homepage and result page.
+   - Optimize for 2–3 page views per user (homepage, quiz, result).
+   - Target 10M–100M monthly users via viral sharing.
+
+5. **Replit Optimization**:
+   - Use DistilGPT-2 (~300MB) to fit within 500MB storage.
+   - Store 5 meme templates (<100KB each) in `templates/` folder.
+   - Cache AI-generated questions in Replit’s database to save CPU.
+   - Limit AI calls to 1 per session (10 questions at once).
+   - Serve static files (images, CSS) from `static/` folder.
+   - Use Cloudflare’s free CDN if traffic spikes (integrates with Replit).
+
+6. **Legit Appeal**:
+   - Use professional text: “Test your brainpower with India’s toughest quiz! Join millions of players and enter our lucky draw for an iPhone 16 Pro 512GB. No purchase needed!”
+   - Add a “Terms & Conditions” page (dummy text: “One winner monthly. Must be 18+. No cash alternative.”) to look legit.
+   - Avoid scam vibes with clean design and subtle ad placement.
+
+7. **Files**:
+   - `main.py`: Flask app with DistilGPT-2 for question generation and Pillow for image creation.
+   - `templates/index.html`: Homepage with quiz form.
+   - `templates/result.html`: Result page with share button.
+   - `static/style.css`: Mobile-friendly CSS.
+   - `templates/trophy.png`: Sample meme image (add 4 more later).
+
+8. **Deployment**:
+   - Deploy on Replit’s free tier at a `*.repl.co` URL.
+   - Use UptimeRobot (free) to ping every 5 minutes, keeping the app live.
+   - Test on mobile (90% of Indian users).
+
+Deliver the full code, including Flask routes, AI prompt, Pillow logic, HTML templates, and CSS. Ensure it runs on Replit’s free tier without crashing. Include instructions to add AdSense later.
