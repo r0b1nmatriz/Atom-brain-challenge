@@ -1,4 +1,51 @@
+// Create particle animation for the header
+function createHeaderParticles() {
+    const headerParticles = document.getElementById('header-particles');
+    if (!headerParticles) return;
+    
+    // Clear any existing particles
+    headerParticles.innerHTML = '';
+    
+    // Create new particles
+    const numberOfParticles = window.innerWidth < 768 ? 15 : 30;
+    
+    for (let i = 0; i < numberOfParticles; i++) {
+        const particle = document.createElement('span');
+        particle.className = 'particle';
+        
+        // Random positioning
+        const posX = Math.random() * 100; // %
+        const posY = Math.random() * 100; // %
+        
+        // Random size
+        const size = Math.random() * 3 + 1; // px
+        
+        // Random animation properties
+        const duration = Math.random() * 10 + 5; // s
+        const delay = Math.random() * 5; // s
+        
+        // Apply styles
+        particle.style.left = `${posX}%`;
+        particle.style.top = `${posY}%`;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+        
+        // Add to container
+        headerParticles.appendChild(particle);
+    }
+}
+
+// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Create and animate the header particles
+    createHeaderParticles();
+    
+    // Handle window resize for responsive particles
+    window.addEventListener('resize', function() {
+        createHeaderParticles();
+    });
     // Quiz timer functionality
     const startTime = new Date().getTime();
     let timerInterval;
