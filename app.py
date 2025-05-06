@@ -130,7 +130,7 @@ def submit_quiz():
     }
     
     # Prepare share text
-    share_text = f"I scored {score}/10 on India's Hardest Brain Challenge! Can you beat me? Try now and win an iPhone 16 Pro 512GB!"
+    share_text = f"I scored {score}/10 on Atom Brain Challenge! Can you beat me? Try now and win an iPhone 16 Pro 512GB!"
     
     # Encode for URL
     from urllib.parse import quote
