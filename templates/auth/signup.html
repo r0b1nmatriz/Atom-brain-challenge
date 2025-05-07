@@ -1,0 +1,301 @@
+{% extends "layout.html" %}
+
+{% block title %}Sign Up - Atom Brain Challenge{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Create Account</h1>
+            <p>Join the Atom Brain Challenge community</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('auth.signup') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ form.username.label }}
+                {{ form.username(class="form-control", placeholder="Choose a username") }}
+                {% for error in form.username.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.email.label }}
+                {{ form.email(class="form-control", placeholder="Enter your email") }}
+                {% for error in form.email.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control", placeholder="Create a strong password") }}
+                {% for error in form.password.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+                <div class="password-strength">
+                    <div class="strength-bar"></div>
+                    <span class="strength-text">Password strength</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                {{ form.password2.label }}
+                {{ form.password2(class="form-control", placeholder="Confirm your password") }}
+                {% for error in form.password2.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-check">
+                {{ form.agree_terms(class="form-check-input") }}
+                {{ form.agree_terms.label(class="form-check-label") }}
+                {% for error in form.agree_terms.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary btn-block") }}
+            </div>
+            
+            <div class="auth-links">
+                <a href="{{ url_for('auth.login') }}">Already have an account? Sign in</a>
+            </div>
+        </form>
+        
+        <div class="auth-perks">
+            <div class="perk-title">Account Benefits:</div>
+            <ul class="perk-list">
+                <li><i class="fas fa-check-circle"></i> Save your quiz results</li>
+                <li><i class="fas fa-check-circle"></i> Track your progress</li>
+                <li><i class="fas fa-check-circle"></i> Eligible for premium prizes</li>
+                <li><i class="fas fa-check-circle"></i> Get personalized quizzes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password strength indicator
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.querySelector('.strength-bar');
+    const strengthText = document.querySelector('.strength-text');
+    
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        
+        // Check length
+        if (password.length >= 8) strength += 25;
+        
+        // Check for mixed case
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+        
+        // Check for numbers
+        if (/\d/.test(password)) strength += 25;
+        
+        // Check for special characters
+        if (/[^a-zA-Z0-9]/.test(password)) strength += 25;
+        
+        // Update strength bar
+        strengthBar.style.width = strength + '%';
+        
+        // Update text and color
+        if (strength <= 25) {
+            strengthBar.style.backgroundColor = '#ef4444';
+            strengthText.textContent = 'Weak password';
+        } else if (strength <= 50) {
+            strengthBar.style.backgroundColor = '#f59e0b';
+            strengthText.textContent = 'Fair password';
+        } else if (strength <= 75) {
+            strengthBar.style.backgroundColor = '#10b981';
+            strengthText.textContent = 'Good password';
+        } else {
+            strengthBar.style.backgroundColor = '#3b82f6';
+            strengthText.textContent = 'Strong password';
+        }
+    });
+});
+</script>
+
+<style>
+.auth-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: rgba(17, 24, 39, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                0 0 30px rgba(59, 130, 246, 0.2);
+    padding: 2rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #38bdf8, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.auth-header p {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.auth-form .form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.auth-form .form-control:focus {
+    border-color: #38bdf8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    height: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0;
+    background-color: #ef4444;
+    transition: all 0.3s ease;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.auth-form .form-check {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form .form-check-input {
+    margin-right: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.auth-form .form-check-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.form-error {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.auth-form .btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(90deg, #38bdf8, #3b82f6);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-form .btn:hover {
+    background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.auth-links a {
+    color: #38bdf8;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.auth-links a:hover {
+    color: #0ea5e9;
+    text-decoration: underline;
+}
+
+.auth-perks {
+    margin-top: 2rem;
+    background: rgba(30, 41, 59, 0.5);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.perk-title {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.perk-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.perk-list li {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.perk-list li i {
+    color: #10b981;
+    margin-right: 0.5rem;
+}
+</style>
+{% endblock %}
