@@ -39,6 +39,14 @@ function createHeaderParticles() {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle splash screen
+    const splashScreen = document.querySelector('.splash-screen');
+    if (splashScreen) {
+        setTimeout(() => {
+            splashScreen.classList.add('fade-out');
+        }, 3000);
+    }
+    
     // Create and animate the header particles
     createHeaderParticles();
     
