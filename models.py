@@ -16,7 +16,7 @@ class User(db.Model):
     payment_id = db.Column(db.String(100), nullable=True)  # Razorpay payment ID
     payment_order_id = db.Column(db.String(100), nullable=True)  # Razorpay order ID
     payment_signature = db.Column(db.String(256), nullable=True)  # Razorpay signature
-    amount_paid = db.Column(db.Float, default=299.00)
+    amount_paid = db.Column(db.Float, default=99.00)
     
     # Relationships
     quiz_attempts = db.relationship('QuizAttempt', backref='user', lazy=True)

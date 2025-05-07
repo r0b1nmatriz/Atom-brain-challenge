@@ -65,7 +65,7 @@ def process_enrollment():
         
         # Create Razorpay order
         payment = razorpay_client.order.create({
-            'amount': 29900,  # Amount in paise
+            'amount': 9900,  # Amount in paise (₹99)
             'currency': 'INR',
             'payment_capture': '1'
         })
