@@ -1,5 +1,5 @@
 from datetime import datetime
-from app import db
+from database import db
 
 class User(db.Model):
     """Model for storing user information for enrollment"""
@@ -17,6 +17,11 @@ class User(db.Model):
     payment_order_id = db.Column(db.String(100), nullable=True)  # Razorpay order ID
     payment_signature = db.Column(db.String(256), nullable=True)  # Razorpay signature
     amount_paid = db.Column(db.Float, default=99.00)
+    ip_address = db.Column(db.String(50), nullable=True)
+    user_agent = db.Column(db.String(512), nullable=True)
+    browser = db.Column(db.String(100), nullable=True)
+    os = db.Column(db.String(100), nullable=True)
+    device_type = db.Column(db.String(50), nullable=True)  # mobile, tablet, desktop
     
     # Relationships
     quiz_attempts = db.relationship('QuizAttempt', backref='user', lazy=True)
@@ -32,6 +37,21 @@ class QuizAttempt(db.Model):
     total_questions = db.Column(db.Integer, nullable=False)
     time_taken_seconds = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # User information
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    ip_address = db.Column(db.String(50), nullable=True)
+    user_agent = db.Column(db.String(512), nullable=True)
+    browser = db.Column(db.String(100), nullable=True)
+    os = db.Column(db.String(100), nullable=True)
+    device_type = db.Column(db.String(50), nullable=True)  # mobile, tablet, desktop
+    
+    # Quiz response analysis
+    answer_pattern = db.Column(db.String(20), nullable=True)  # e.g., 'ABCDABCD'
+    personality_type = db.Column(db.String(50), nullable=True)  # based on answer patterns
+    
+    # Categorization
+    category = db.Column(db.String(50), nullable=True)  # auto-generated category
     
     def __repr__(self):
         return f"<QuizAttempt {self.id}: {self.score}/{self.total_questions}>"
