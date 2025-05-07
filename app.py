@@ -3,42 +3,27 @@ import uuid
 import logging
 import razorpay
 import re
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+import json
+from urllib.parse import quote
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, Response
 from quiz_generator import generate_quiz_questions
 from image_generator import create_result_image
-from data_export import generate_csv, get_summary_data, categorize_user
 
-class Base(DeclarativeBase):
-    pass
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
-db = SQLAlchemy(model_class=Base)
-
+# Initialize Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "hardbrainchallenge")
 
-# Configure the database
-database_url = os.environ.get("DATABASE_URL")
-# For debugging
-if not database_url:
-    logging.warning("DATABASE_URL not found in environment variables! Using SQLite fallback.")
-    database_url = "sqlite:///quiz_app.db"
+# Initialize database
+from database import db, init_db
+init_db(app)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
-
-# Initialize the app with the extension
-db.init_app(app)
-
-# Import models and create tables
-with app.app_context():
-    import models
-    db.create_all()
-    logging.info("Database tables created!")
+# Import models
+from models import User, QuizAttempt, QuizQuestion, Feedback
+from data_export import generate_csv, get_summary_data, categorize_user
 
 # Initialize Razorpay client
 razorpay_client = razorpay.Client(
@@ -82,7 +67,7 @@ def payment_callback():
         razorpay_client.utility.verify_payment_signature(params_dict)
 
         # Update user payment status
-        user = models.User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
+        user = User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
         if user:
             user.payment_status = 'completed'
             user.payment_id = request.form['razorpay_payment_id']
@@ -267,17 +252,69 @@ def submit_quiz():
     # Current app URL (for sharing)
     app_url = request.host_url.rstrip('/')
 
-    # Save quiz attempt in database
+    # Save quiz attempt in database with user information
     try:
-        from models import QuizAttempt
-
         session_id = session.get('session_id', str(uuid.uuid4()))
+        
+        # Get user agent info
+        user_agent = request.headers.get('User-Agent', '')
+        
+        # Analyze user agent to determine browser, OS, and device type
+        browser = "Unknown"
+        os_name = "Unknown"
+        device_type = "Unknown"
+        
+        # Simple browser detection
+        if 'Chrome' in user_agent and 'Chromium' not in user_agent:
+            browser = 'Chrome'
+        elif 'Firefox' in user_agent:
+            browser = 'Firefox'
+        elif 'Safari' in user_agent and 'Chrome' not in user_agent:
+            browser = 'Safari'
+        elif 'Edge' in user_agent:
+            browser = 'Edge'
+        elif 'MSIE' in user_agent or 'Trident/' in user_agent:
+            browser = 'Internet Explorer'
+        elif 'Opera' in user_agent or 'OPR/' in user_agent:
+            browser = 'Opera'
+        
+        # Simple OS detection
+        if 'Windows' in user_agent:
+            os_name = 'Windows'
+        elif 'Mac OS' in user_agent:
+            os_name = 'macOS'
+        elif 'Linux' in user_agent and 'Android' not in user_agent:
+            os_name = 'Linux'
+        elif 'Android' in user_agent:
+            os_name = 'Android'
+        elif 'iOS' in user_agent or 'iPhone' in user_agent or 'iPad' in user_agent:
+            os_name = 'iOS'
+        
+        # Simple device type detection
+        if 'Mobile' in user_agent or 'Android' in user_agent and 'Mobile' in user_agent:
+            device_type = 'mobile'
+        elif 'iPad' in user_agent or 'Android' in user_agent and 'Mobile' not in user_agent:
+            device_type = 'tablet'
+        else:
+            device_type = 'desktop'
+        
+        # Create quiz attempt with additional data
         quiz_attempt = QuizAttempt(
             session_id=session_id,
             score=score,
             total_questions=len(questions),
-            time_taken_seconds=time_taken
+            time_taken_seconds=time_taken,
+            ip_address=request.remote_addr,
+            user_agent=user_agent,
+            browser=browser,
+            os=os_name,
+            device_type=device_type,
+            answer_pattern=','.join(answers),
+            personality_type=personality_type
         )
+        
+        # Add category after creation to avoid passing a temporary object
+        quiz_attempt.category = categorize_user(quiz_attempt)
 
         db.session.add(quiz_attempt)
         db.session.commit()
@@ -308,35 +345,32 @@ def terms():
 @app.route('/admin/<display>')
 def admin(display=None):
     """Admin dashboard to view quiz statistics"""
-    from models import QuizAttempt
-
+    # Get summary data
+    summary_data = get_summary_data()
+    
     # Get total quiz attempts
-    total_attempts = db.session.query(db.func.count(QuizAttempt.id)).scalar() or 0
-
+    total_attempts = summary_data['total_attempts']
+    
     # Get average score
-    avg_score_result = db.session.query(db.func.avg(QuizAttempt.score)).scalar()
-    avg_score = avg_score_result if avg_score_result is not None else 0
-
-    # Get average time
-    avg_time_result = db.session.query(db.func.avg(QuizAttempt.time_taken_seconds)).scalar()
-    avg_time = avg_time_result if avg_time_result is not None else 0
-
-    # Get number of perfect scores
-    high_scores = db.session.query(db.func.count(QuizAttempt.id)).filter(
-        QuizAttempt.score == QuizAttempt.total_questions
-    ).scalar() or 0
-
+    avg_score = summary_data['avg_score']
+    
     # Get recent attempts (limited to last 20)
-    recent_attempts = db.session.query(QuizAttempt).order_by(
+    recent_attempts = QuizAttempt.query.order_by(
         QuizAttempt.created_at.desc()
     ).limit(20).all()
-
+    
+    # Get data for visualizations
+    personality_types = summary_data['personality_types']
+    devices = summary_data['devices']
+    browsers = summary_data['browsers']
+    os_data = summary_data['os']
+    
     # Get score distribution
     score_distribution_query = db.session.query(
         QuizAttempt.score, 
         db.func.count(QuizAttempt.id)
     ).group_by(QuizAttempt.score).all()
-
+    
     # Convert query result to a list of tuples (score, count)
     score_distribution = []
     max_score_count = 0
@@ -348,10 +382,38 @@ def admin(display=None):
                 if count > max_score_count:
                     max_score_count = count
         score_distribution.append((i, count))
-
+    
+    # Get average time
+    avg_time_result = db.session.query(db.func.avg(QuizAttempt.time_taken_seconds)).scalar()
+    avg_time = avg_time_result if avg_time_result is not None else 0
+    
+    # Get number of perfect scores
+    high_scores = db.session.query(db.func.count(QuizAttempt.id)).filter(
+        QuizAttempt.score == QuizAttempt.total_questions
+    ).scalar() or 0
+    
+    # Get category distribution
+    category_distribution = db.session.query(
+        QuizAttempt.category, 
+        db.func.count(QuizAttempt.id)
+    ).filter(QuizAttempt.category != None).group_by(QuizAttempt.category).all()
+    
+    # Convert to dictionary
+    categories = {cat or 'Uncategorized': count for cat, count in category_distribution}
+    
     # Set display mode
     display_mode = display if display in ['all'] else 'summary'
-
+    
+    # Prepare data for JSON
+    chart_data = {
+        'score_distribution': [{'score': s, 'count': c} for s, c in score_distribution],
+        'personality_types': [{'type': t, 'count': c} for t, c in personality_types.items()],
+        'devices': [{'type': t, 'count': c} for t, c in devices.items()],
+        'browsers': [{'type': t, 'count': c} for t, c in browsers.items()],
+        'os': [{'type': t, 'count': c} for t, c in os_data.items()],
+        'categories': [{'type': t, 'count': c} for t, c in categories.items()]
+    }
+    
     return render_template(
         'admin.html',
         total_attempts=total_attempts,
@@ -361,14 +423,28 @@ def admin(display=None):
         recent_attempts=recent_attempts,
         score_distribution=score_distribution,
         max_score_count=max_score_count if max_score_count > 0 else 1,
+        chart_data=json.dumps(chart_data),
+        personality_types=personality_types,
+        devices=devices,
+        browsers=browsers,
+        os_data=os_data,
+        categories=categories,
         display_mode=display_mode
     )
+
+@app.route('/export-data')
+def export_data():
+    """Export all quiz data as CSV"""
+    try:
+        return generate_csv()
+    except Exception as e:
+        logging.error(f"Error exporting data: {e}")
+        flash("There was an error exporting the data. Please try again.", "error")
+        return redirect(url_for('admin'))
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
     """Handle feedback form submission"""
-    from models import Feedback
-
     session_id = session.get('session_id', str(uuid.uuid4()))
     quiz_attempt_id = session.get('quiz_attempt_id', None)
 

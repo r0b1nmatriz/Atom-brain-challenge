@@ -1,0 +1,296 @@
+/* Animations and transitions for quiz app */
+
+/* Base animation properties */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --accent-color: #e74c3c;
+  --transition-speed: 0.3s;
+  --transition-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth page transitions */
+body {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+  transition: background-color 0.5s var(--transition-function);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Card animations */
+.card {
+  transition: transform var(--transition-speed) var(--transition-function),
+              box-shadow var(--transition-speed) var(--transition-function);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Button animations */
+button, .btn {
+  transition: background-color var(--transition-speed) var(--transition-function),
+              transform var(--transition-speed) var(--transition-function),
+              box-shadow var(--transition-speed) var(--transition-function);
+}
+
+button:hover, .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+button:active, .btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Quiz question transitions */
+.question-container {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUpFade 0.5s var(--transition-function) forwards;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered animation for multiple elements */
+.quiz-option {
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: slideInRight 0.4s var(--transition-function) forwards;
+}
+
+.quiz-option:nth-child(1) { animation-delay: 0.1s; }
+.quiz-option:nth-child(2) { animation-delay: 0.2s; }
+.quiz-option:nth-child(3) { animation-delay: 0.3s; }
+.quiz-option:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Results page animations */
+.result-container {
+  opacity: 0;
+  animation: popIn 0.6s var(--transition-function) forwards;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Score number animation */
+.score-number {
+  display: inline-block;
+  animation: countUp 2s var(--transition-function) forwards;
+}
+
+@keyframes countUp {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Share buttons animation */
+.share-buttons a {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.5s var(--transition-function) forwards;
+}
+
+.share-buttons a:nth-child(1) { animation-delay: 0.2s; }
+.share-buttons a:nth-child(2) { animation-delay: 0.3s; }
+.share-buttons a:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading animation */
+.loader {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Flash messages animation */
+.alert {
+  animation: slideInDown 0.5s var(--transition-function), 
+             fadeOut 0.5s var(--transition-function) 5s forwards;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Admin dashboard animations */
+.chart-container {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUpFade 0.8s var(--transition-function) forwards;
+}
+
+.chart-container:nth-child(1) { animation-delay: 0.1s; }
+.chart-container:nth-child(2) { animation-delay: 0.2s; }
+.chart-container:nth-child(3) { animation-delay: 0.3s; }
+.chart-container:nth-child(4) { animation-delay: 0.4s; }
+
+/* Futuristic glowing effects */
+.glow-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s var(--transition-function);
+}
+
+.glow-button:after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+  transform: rotate(30deg);
+  transition: all 1s var(--transition-function);
+  opacity: 0;
+}
+
+.glow-button:hover:after {
+  animation: glowSweep 1.5s var(--transition-function);
+}
+
+@keyframes glowSweep {
+  0% {
+    transform: rotate(30deg) translateX(-300%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(30deg) translateX(300%);
+    opacity: 0;
+  }
+}
+
+/* Background particle effect */
+.particles-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(52, 152, 219, 0.1);
+  animation: float 15s infinite linear;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-1000px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Page navigation transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 500ms, transform 500ms;
+}
