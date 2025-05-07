@@ -39,9 +39,9 @@ function createHeaderParticles() {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle splash screen
+    // Handle splash screen - only apply fade-out if NOT on the enroll page
     const splashScreen = document.querySelector('.splash-screen');
-    if (splashScreen) {
+    if (splashScreen && !document.querySelector('.splash-price')) {
         setTimeout(() => {
             splashScreen.classList.add('fade-out');
         }, 3000);
