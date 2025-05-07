@@ -15,7 +15,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Flask application
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "hardbrainchallenge")
+# Set a hard-coded secret key
+app.secret_key = "hardbrainchallenge123456789"
 
 # Initialize database
 from database import db, init_db
