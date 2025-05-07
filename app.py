@@ -50,6 +50,28 @@ def enroll():
 @app.route('/process_enrollment', methods=['POST'])
 def process_enrollment():
     try:
+        ip_address = request.remote_addr
+        
+        # Check if IP is banned
+        banned_user = models.User.query.filter_by(ip_address=ip_address, is_banned=True).first()
+        if banned_user:
+            return jsonify({'error': 'Access denied'}), 403
+            
+        # Get or create user record for this IP
+        user = models.User.query.filter_by(ip_address=ip_address).first()
+        if not user:
+            user = models.User(ip_address=ip_address)
+            db.session.add(user)
+        
+        # Check payment attempts
+        if user.payment_attempts >= 3 and user.payment_status != 'completed':
+            user.is_banned = True
+            db.session.commit()
+            return jsonify({'error': 'Maximum payment attempts exceeded'}), 403
+            
+        user.payment_attempts += 1
+        db.session.commit()
+        
         # Create Razorpay order
         payment = razorpay_client.order.create({
             'amount': 9900,  # Amount in paise (₹99)
@@ -70,25 +92,45 @@ def process_enrollment():
 @app.route('/payment_callback', methods=['POST'])
 def payment_callback():
     try:
-        # Verify payment signature
+        order_id = request.form['razorpay_order_id']
+        payment_id = request.form.get('razorpay_payment_id')
+        signature = request.form.get('razorpay_signature')
+        
+        # Get user by IP address
+        user = models.User.query.filter_by(ip_address=request.remote_addr).first()
+        if not user:
+            flash('Session expired. Please try again.', 'error')
+            return redirect(url_for('index'))
+            
+        # Handle payment failure
+        if not payment_id or not signature:
+            user.payment_status = 'failed'
+            if user.payment_attempts >= 3:
+                user.is_banned = True
+                flash('Maximum payment attempts exceeded. Access denied.', 'error')
+                return redirect(url_for('index'))
+            db.session.commit()
+            flash('Payment failed. Please try again.', 'error')
+            return redirect(url_for('enroll'))
+            
+        # Verify successful payment
         params_dict = {
-            'razorpay_payment_id': request.form['razorpay_payment_id'],
-            'razorpay_order_id': request.form['razorpay_order_id'],
-            'razorpay_signature': request.form['razorpay_signature']
+            'razorpay_payment_id': payment_id,
+            'razorpay_order_id': order_id,
+            'razorpay_signature': signature
         }
         
         razorpay_client.utility.verify_payment_signature(params_dict)
         
         # Update user payment status
-        user = models.User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
-        if user:
-            user.payment_status = 'completed'
-            user.payment_id = request.form['razorpay_payment_id']
-            user.payment_signature = request.form['razorpay_signature']
-            db.session.commit()
-            
-            flash('Payment successful! You can now take the quiz.', 'success')
-            return redirect(url_for('quiz'))
+        user.payment_status = 'completed'
+        user.payment_id = payment_id
+        user.payment_signature = signature
+        user.payment_order_id = order_id
+        db.session.commit()
+        
+        flash('🎉 Payment successful! Get ready for an incredible surprise at the end of the quiz!', 'success')
+        return redirect(url_for('quiz'))
     except Exception as e:
         logging.error(f"Payment verification failed: {e}")
         flash('Payment verification failed. Please contact support.', 'error')
