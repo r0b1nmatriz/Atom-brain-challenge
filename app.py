@@ -50,19 +50,6 @@ def enroll():
 @app.route('/process_enrollment', methods=['POST'])
 def process_enrollment():
     try:
-        # Create user record
-        user = models.User(
-            name=request.form['name'],
-            email=request.form['email'],
-            phone=request.form['phone'],
-            address=request.form['address'],
-            city=request.form['city'],
-            state=request.form['state'],
-            pin_code=request.form['pin_code']
-        )
-        db.session.add(user)
-        db.session.commit()
-        
         # Create Razorpay order
         payment = razorpay_client.order.create({
             'amount': 9900,  # Amount in paise (₹99)
@@ -70,13 +57,9 @@ def process_enrollment():
             'payment_capture': '1'
         })
         
-        # Update user with order ID
-        user.payment_order_id = payment['id']
-        db.session.commit()
-        
         return jsonify({
             'order_id': payment['id'],
-            'amount': 29900,
+            'amount': 9900,
             'currency': 'INR',
             'key': os.environ.get('RAZORPAY_KEY_ID')
         })

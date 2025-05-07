@@ -7,57 +7,52 @@
 <div class="splash-screen">
     <div class="splash-content">
         <h1>Welcome to Atom Brain Challenge</h1>
-        <div class="splash-price">₹299</div>
+        <div class="splash-price">₹99</div>
         <div class="splash-features">
-            <p><i class="fas fa-star"></i>Access to Premium Questions</p>
-            <p><i class="fas fa-trophy"></i>Chance to Win iPhone 16 Pro</p>
-            <p><i class="fas fa-chart-line"></i>Detailed Performance Analysis</p>
+            <p>✨ Access to Premium Questions</p>
+            <p>🏆 Chance to Win iPhone 16 Pro</p>
+            <p>📊 Detailed Performance Analysis</p>
         </div>
+        <button onclick="initiatePayment()" class="btn btn-primary btn-lg mt-4">
+            <i class="fas fa-bolt me-2"></i> Pay ₹99 & Start Quiz
+        </button>
     </div>
 </div>
-<div class="enroll-container">
-    <div class="card">
-        <div class="card-header">
-            <h2>Enroll in Atom Brain Challenge</h2>
-            <p class="text-muted">Limited time offer: ₹99 only!</p>
-        </div>
-        <div class="card-body">
-            <form id="enrollmentForm" action="{{ url_for('process_enrollment') }}" method="POST">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
-                </div>
-                <div class="mb-3">
-                    <label for="phone" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="phone" name="phone" required>
-                </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label">Address</label>
-                    <textarea class="form-control" id="address" name="address" rows="2"></textarea>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" name="city">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="state" class="form-label">State</label>
-                        <input type="text" class="form-control" id="state" name="state">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="pin_code" class="form-label">PIN Code</label>
-                    <input type="text" class="form-control" id="pin_code" name="pin_code">
-                </div>
-                <button type="submit" class="btn btn-primary btn-lg w-100">
-                    Pay ₹299 and Enroll
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+function initiatePayment() {
+    fetch('/process_enrollment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        var options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            order_id: data.order_id,
+            name: 'Atom Brain Challenge',
+            description: 'Quiz Enrollment',
+            handler: function(response) {
+                window.location.href = '/quiz';
+            },
+            prefill: {
+                name: '',
+                email: '',
+                contact: ''
+            },
+            theme: {
+                color: '#38bdf8'
+            }
+        };
+        var rzp = new Razorpay(options);
+        rzp.open();
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
 {% endblock %}
