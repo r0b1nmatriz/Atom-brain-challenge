@@ -56,7 +56,7 @@ def process_enrollment():
             'currency': 'INR',
             'payment_capture': '1'
         })
-        
+
         return jsonify({
             'order_id': payment['id'],
             'amount': 9900,
@@ -76,23 +76,24 @@ def payment_callback():
             'razorpay_order_id': request.form['razorpay_order_id'],
             'razorpay_signature': request.form['razorpay_signature']
         }
-        
+
         razorpay_client.utility.verify_payment_signature(params_dict)
-        
+
         # Update user payment status
         user = models.User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
         if user:
             user.payment_status = 'completed'
             user.payment_id = request.form['razorpay_payment_id']
             user.payment_signature = request.form['razorpay_signature']
+            user.ip_address = request.remote_addr
             db.session.commit()
-            
-            flash('Payment successful! You can now take the quiz.', 'success')
+
+            flash('🎉 Payment successful! Get ready to unlock a fortune beyond your wildest dreams! Complete the quiz to enter the elite circle of potential millionaires! 💎', 'success')
             return redirect(url_for('quiz'))
     except Exception as e:
         logging.error(f"Payment verification failed: {e}")
         flash('Payment verification failed. Please contact support.', 'error')
-        
+
     return redirect(url_for('index'))
 
 
@@ -104,13 +105,13 @@ def index():
     # Create a unique session ID if not already exists
     if 'session_id' not in session:
         session['session_id'] = str(uuid.uuid4())
-    
+
     return render_template('index.html')
 
 @app.route('/quiz')
 def quiz():
     session_id = session.get('session_id')
-    
+
     # Check if questions already exist for this session
     if session_id in question_cache:
         questions = question_cache[session_id]
@@ -124,7 +125,7 @@ def quiz():
             logging.error(f"Error generating questions: {e}")
             flash("Sorry, we couldn't generate questions at this time. Please try again.", "error")
             return redirect(url_for('index'))
-    
+
     # Store questions in session for validation later
     session['questions'] = questions
     return render_template('quiz.html', questions=questions)
@@ -134,11 +135,11 @@ def submit_quiz():
     if 'questions' not in session:
         flash("Session expired. Please start a new quiz.", "error")
         return redirect(url_for('index'))
-    
+
     questions = session['questions']
     score = 0
     user_answers = {}
-    
+
     # Get time taken from form if present
     time_taken = request.form.get('time_taken', None)
     if time_taken:
@@ -146,16 +147,16 @@ def submit_quiz():
             time_taken = int(time_taken)
         except ValueError:
             time_taken = None
-    
+
     # Calculate score
     for i, question in enumerate(questions):
         question_id = f"q{i}"
         user_answer = request.form.get(question_id, '')
         user_answers[question_id] = user_answer
-        
+
         if user_answer == question['correct_answer']:
             score += 1
-    
+
     # Generate result message based on score
     result_messages = {
         0: "Better luck next time!",
@@ -170,16 +171,16 @@ def submit_quiz():
         9: "Almost perfect!",
         10: "Perfect score! You're a Brain Champion!"
     }
-    
+
     result_message = result_messages.get(score, "You completed the challenge!")
-    
+
     # Create a shareable result image and get its path
     try:
         image_path = create_result_image(score, 10, result_message)
     except Exception as e:
         logging.error(f"Error creating result image: {e}")
         image_path = None
-    
+
     # Store results in session
     session['result'] = {
         'score': score,
@@ -187,21 +188,21 @@ def submit_quiz():
         'message': result_message,
         'image_path': image_path
     }
-    
+
     # Prepare share text
-    share_text = f"I scored {score}/10 on Atom Brain Challenge! Can you beat me? Try now and win an iPhone 16 Pro 512GB!"
-    
+    share_text = f"I scored {score}/10 on Atom Brain Challenge! Can you beat me? Try now and win a mysterious gift you wouldn't have imagined in your lifetime!"
+
     # Encode for URL
     from urllib.parse import quote
     encoded_share_text = quote(share_text)
-    
+
     # Current app URL (for sharing)
     app_url = request.host_url.rstrip('/')
-    
+
     # Save quiz attempt in database
     try:
         from models import QuizAttempt
-        
+
         session_id = session.get('session_id', str(uuid.uuid4()))
         quiz_attempt = QuizAttempt(
             session_id=session_id,
@@ -209,17 +210,17 @@ def submit_quiz():
             total_questions=len(questions),
             time_taken_seconds=time_taken
         )
-        
+
         db.session.add(quiz_attempt)
         db.session.commit()
-        
+
         # Store quiz attempt ID in session for feedback later
         session['quiz_attempt_id'] = quiz_attempt.id
         logging.info(f"Saved quiz attempt: {quiz_attempt}")
     except Exception as e:
         logging.error(f"Error saving quiz attempt to database: {e}")
         # Continue with the result page even if database save fails
-    
+
     return render_template(
         'result.html', 
         score=score, 
@@ -240,34 +241,34 @@ def terms():
 def admin(display=None):
     """Admin dashboard to view quiz statistics"""
     from models import QuizAttempt
-    
+
     # Get total quiz attempts
     total_attempts = db.session.query(db.func.count(QuizAttempt.id)).scalar() or 0
-    
+
     # Get average score
     avg_score_result = db.session.query(db.func.avg(QuizAttempt.score)).scalar()
     avg_score = avg_score_result if avg_score_result is not None else 0
-    
+
     # Get average time
     avg_time_result = db.session.query(db.func.avg(QuizAttempt.time_taken_seconds)).scalar()
     avg_time = avg_time_result if avg_time_result is not None else 0
-    
+
     # Get number of perfect scores
     high_scores = db.session.query(db.func.count(QuizAttempt.id)).filter(
         QuizAttempt.score == QuizAttempt.total_questions
     ).scalar() or 0
-    
+
     # Get recent attempts (limited to last 20)
     recent_attempts = db.session.query(QuizAttempt).order_by(
         QuizAttempt.created_at.desc()
     ).limit(20).all()
-    
+
     # Get score distribution
     score_distribution_query = db.session.query(
         QuizAttempt.score, 
         db.func.count(QuizAttempt.id)
     ).group_by(QuizAttempt.score).all()
-    
+
     # Convert query result to a list of tuples (score, count)
     score_distribution = []
     max_score_count = 0
@@ -279,10 +280,10 @@ def admin(display=None):
                 if count > max_score_count:
                     max_score_count = count
         score_distribution.append((i, count))
-    
+
     # Set display mode
     display_mode = display if display in ['all'] else 'summary'
-    
+
     return render_template(
         'admin.html',
         total_attempts=total_attempts,
@@ -299,22 +300,22 @@ def admin(display=None):
 def submit_feedback():
     """Handle feedback form submission"""
     from models import Feedback
-    
+
     session_id = session.get('session_id', str(uuid.uuid4()))
     quiz_attempt_id = session.get('quiz_attempt_id', None)
-    
+
     try:
         # Get form data
         rating = request.form.get('rating')
         comment = request.form.get('comment', '')
-        
+
         if rating:
             # Convert to integer
             try:
                 rating = int(rating)
             except ValueError:
                 rating = None
-        
+
         # Create feedback record
         feedback = Feedback(
             session_id=session_id,
@@ -322,16 +323,16 @@ def submit_feedback():
             rating=rating,
             comment=comment
         )
-        
+
         db.session.add(feedback)
         db.session.commit()
-        
+
         logging.info(f"Saved feedback: {feedback}")
         flash("Thank you for your feedback!", "success")
     except Exception as e:
         logging.error(f"Error saving feedback: {e}")
         flash("There was an issue submitting your feedback. Please try again.", "error")
-    
+
     # Redirect to home page
     return redirect(url_for('index'))
 
