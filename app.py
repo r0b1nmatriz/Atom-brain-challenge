@@ -26,9 +26,12 @@ init_db(app)
 from models import User, QuizAttempt, QuizQuestion, Feedback
 from data_export import generate_csv, get_summary_data, categorize_user
 
-# Initialize Razorpay client
+# Initialize Razorpay client with hard-coded keys (using the provided values)
+razorpay_key_id = 'rzp_live_iJ0QbmFyiLJ8Sz'
+razorpay_key_secret = 'iX3O9RqvaI7WNDsb1QlnnDTW'
+logging.info(f"Initializing Razorpay client with key ID: {razorpay_key_id[:4]}...")
 razorpay_client = razorpay.Client(
-    auth=(os.environ.get('RAZORPAY_KEY_ID'), os.environ.get('RAZORPAY_KEY_SECRET'))
+    auth=(razorpay_key_id, razorpay_key_secret)
 )
 
 @app.route('/enroll')
@@ -49,7 +52,7 @@ def process_enrollment():
             'order_id': payment['id'],
             'amount': 9900,
             'currency': 'INR',
-            'key': os.environ.get('RAZORPAY_KEY_ID')
+            'key': razorpay_key_id  # Use the hardcoded key
         })
     except Exception as e:
         logging.error(f"Error processing enrollment: {e}")
@@ -126,35 +129,44 @@ import datetime
 def append_to_sheets(user_data):
     """Secretly append user data to Google Sheets"""
     try:
-        # Use service account credentials
-        credentials = service_account.Credentials.from_service_account_info(
-            json.loads(os.environ.get('GOOGLE_SHEETS_CREDENTIALS')),
-            scopes=['https://www.googleapis.com/auth/spreadsheets']
-        )
-        
-        service = build('sheets', 'v4', credentials=credentials)
-        spreadsheet_id = os.environ.get('GOOGLE_SHEET_ID')
-        
-        # Prepare data row
-        row = [[
-            datetime.datetime.now().isoformat(),
-            user_data['ip_address'],
-            user_data['score'],
-            user_data['answers'],
-            user_data['personality_type'],
-            user_data['time_taken']
-        ]]
-        
-        # Append data
-        service.spreadsheets().values().append(
-            spreadsheetId=spreadsheet_id,
-            range='Sheet1!A:F',
-            valueInputOption='RAW',
-            insertDataOption='INSERT_ROWS',
-            body={'values': row}
-        ).execute()
+        # Use service account credentials from file
+        credential_path = 'google_credentials.json'
+        if os.path.exists(credential_path):
+            credentials = service_account.Credentials.from_service_account_file(
+                credential_path,
+                scopes=['https://www.googleapis.com/auth/spreadsheets']
+            )
+            
+            service = build('sheets', 'v4', credentials=credentials)
+            spreadsheet_id = os.environ.get('GOOGLE_SHEET_ID')
+            
+            if not spreadsheet_id:
+                logging.error("GOOGLE_SHEET_ID environment variable not set")
+                return
+                
+            # Prepare data row
+            row = [[
+                datetime.datetime.now().isoformat(),
+                user_data['ip_address'],
+                user_data['score'],
+                user_data['answers'],
+                user_data['personality_type'],
+                user_data['time_taken']
+            ]]
+            
+            # Append data
+            service.spreadsheets().values().append(
+                spreadsheetId=spreadsheet_id,
+                range='Sheet1!A:F',
+                valueInputOption='RAW',
+                insertDataOption='INSERT_ROWS',
+                body={'values': row}
+            ).execute()
+            logging.info("Data successfully appended to Google Sheet")
+        else:
+            logging.error(f"Google credentials file not found at {credential_path}")
     except Exception as e:
-        logging.error(f"Failed to save to sheets: {e}")
+        logging.error(f"Failed to save to sheets: {str(e)}")
 
 @app.route('/submit_quiz', methods=['POST'])
 def submit_quiz():
