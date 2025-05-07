@@ -1,56 +1,137 @@
 {% extends "layout.html" %}
 
-{% block title %}Take the Challenge{% endblock %}
+{% block title %}Atom Brain Challenge - Win ₹1 Crore+ Jackpot{% endblock %}
 
 {% block content %}
-<div class="row align-items-center">
+<div class="futuristic-overlay"></div>
+
+<div class="personalized-alert" id="personalizedAlert">
+    <div class="alert-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <div class="alert-content">
+        <p>
+            <span id="personalLocation">Your area</span> has been selected for the exclusive Atom Brain Challenge! 
+            <span class="highlight">Your profile matches our winner criteria!</span>
+        </p>
+    </div>
+    <button class="alert-close" onclick="closePersonalizedMessage()">×</button>
+</div>
+
+<div class="row align-items-center hero-section">
     <div class="col-md-7">
         <div class="card hero-card">
             <div class="card-body">
-                <h1 class="card-title mb-4">
-                No cap, this quiz is bussin' fr fr! 🔥
-            </h1>
-            <p class="fs-5">
-                Bestie, it's giving millionaire energy! Your chance to <strong>WIN a Mysterious Fortune</strong> that'll change your life forever! No cap fr fr! 💰✨
-            </p>
-            <p class="fs-4 mb-4 highlight-text">
-                For just ₹99/- you're literally that girl/guy! 
-            </p>
-            <div class="cta-buttons">
-                <a href="{{ url_for('enroll') }}" class="btn btn-primary btn-lg enroll-btn">
-                    <i class="fas fa-bolt me-2"></i> Enroll Now (₹99 only!)
-                </a>
-                <p class="small text-muted mt-2">
-                    <i class="fas fa-shield-alt me-1"></i> Secured by Razorpay
+                <div class="jackpot-ticker">
+                    <span class="jackpot-label">POTENTIAL JACKPOT:</span>
+                    <span class="jackpot-amount" id="jackpotCounter">₹1,00,00,000</span>
+                </div>
+                
+                <h1 class="card-title">
+                    <span class="text-gradient">ATOM BRAIN CHALLENGE</span>
+                </h1>
+                
+                <div class="biometric-scan">
+                    <div class="scan-animation"></div>
+                    <p class="scan-text">Analyzing profile compatibility...</p>
+                    <div class="scan-result" id="scanResult">Match Found: 97.8% Compatible</div>
+                </div>
+                
+                <p class="hero-description">
+                    The <span class="text-highlight">elite challenge</span> designed to identify India's top minds. 
+                    Our AI has identified you as a <span class="text-highlight">potential candidate</span> for our 
+                    <strong>massive ₹1 Crore+ jackpot</strong>. Limited entries, time-sensitive opportunity.
                 </p>
-            </div>
-                <p class="small text-muted mt-3">
-                    <em>Winners selected via lucky draw. <a href="{{ url_for('terms') }}">Terms apply</a>.</em>
+                
+                <div class="countdown-container">
+                    <div class="countdown-label">OFFER EXPIRES IN:</div>
+                    <div class="countdown-timer" id="offerCountdown">15:00</div>
+                </div>
+                
+                <div class="cta-buttons">
+                    <a href="{{ url_for('enroll') }}" class="btn btn-primary btn-lg glow-button">
+                        <i class="fas fa-brain me-2"></i> Unlock Your Chance (₹99 only)
+                    </a>
+                    <div class="limited-spots">
+                        <div class="spots-icon"><i class="fas fa-user-clock"></i></div>
+                        <div class="spots-text">
+                            <span class="spots-count" id="spotCounter">42</span> spots left today
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-badges">
+                    <div class="badge-item">
+                        <i class="fas fa-shield-alt"></i> Secured Payment
+                    </div>
+                    <div class="badge-item">
+                        <i class="fas fa-lock"></i> Privacy Protected
+                    </div>
+                    <div class="badge-item">
+                        <i class="fas fa-check-circle"></i> Verified Prize Pool
+                    </div>
+                </div>
+                
+                <p class="legal-text">
+                    <em>Jackpot eligibility based on performance criteria. <a href="{{ url_for('terms') }}">Terms & conditions</a> apply.</em>
                 </p>
             </div>
         </div>
     </div>
+    
     <div class="col-md-5">
+        <div class="winner-card">
+            <div class="winner-bar">
+                <span>RECENT WINNER</span>
+                <span class="winner-prize">₹12,50,000</span>
+            </div>
+            <div class="winner-content">
+                <div class="winner-image">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="verified-badge"><i class="fas fa-check"></i></div>
+                </div>
+                <div class="winner-info">
+                    <h4 id="winnerName">Rajesh S.</h4>
+                    <p id="winnerLocation">Mumbai, Maharashtra</p>
+                    <div class="winner-score">
+                        <span class="score-label">SCORE:</span>
+                        <span class="score-value">9/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="winner-testimonial">
+                <p>"I never thought answering a few questions could change my life. The money is real!"</p>
+            </div>
+        </div>
+        
         <div class="features-list">
             <div class="feature-item">
-                <i class="feature-icon fas fa-question-circle"></i>
-                <div>
-                    <h4>Challenging Questions</h4>
-                    <p>Test your knowledge about Indian history, culture, science, and more!</p>
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="feature-content">
+                    <h4>Neural Profiling</h4>
+                    <p>Our AI evaluates your cognitive patterns for jackpot compatibility</p>
                 </div>
             </div>
+            
             <div class="feature-item">
-                <i class="feature-icon fas fa-share-alt"></i>
-                <div>
-                    <h4>Share Your Results</h4>
-                    <p>Challenge your friends and family to beat your score!</p>
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="feature-content">
+                    <h4>Instant Verification</h4>
+                    <p>Winners receive verification within 24 hours of challenge completion</p>
                 </div>
             </div>
+            
             <div class="feature-item">
-                <i class="feature-icon fas fa-trophy"></i>
-                <div>
-                    <h4>Win Big Prizes</h4>
-                    <p>Get a chance to win an iPhone 16 Pro just for participating!</p>
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="feature-content">
+                    <h4>Success Probability</h4>
+                    <p>Your profile indicates above-average potential for winning</p>
                 </div>
             </div>
         </div>
@@ -62,17 +143,37 @@
         <div class="card stats-card">
             <div class="card-body">
                 <div class="row text-center">
-                    <div class="col-md-4">
-                        <h3 class="stats-number">8.5M+</h3>
-                        <p class="stats-label">Quiz Takers</p>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-circle">
+                                <span class="stat-number">8.5M+</span>
+                            </div>
+                            <p class="stat-label">Participants</p>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <h3 class="stats-number">57%</h3>
-                        <p class="stats-label">Average Score</p>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-circle">
+                                <span class="stat-number">₹4.2Cr</span>
+                            </div>
+                            <p class="stat-label">Total Prizes</p>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <h3 class="stats-number">12</h3>
-                        <p class="stats-label">Winners So Far</p>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-circle">
+                                <span class="stat-number">127</span>
+                            </div>
+                            <p class="stat-label">Winners</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-circle">
+                                <span class="stat-number">68%</span>
+                            </div>
+                            <p class="stat-label">Success Rate</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -80,33 +181,735 @@
     </div>
 </div>
 
-<div class="testimonials mt-5">
-    <h3 class="text-center mb-4">What Quiz Takers Are Saying</h3>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    "The hardest quiz I've ever taken! I scored 8/10 and I'm a college professor!"
-                </div>
-                <div class="testimonial-author">- Dr. Rajesh K.</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    "I couldn't believe how challenging these questions were. Truly a test for your brain!"
-                </div>
-                <div class="testimonial-author">- Priya S.</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    "I won the iPhone last month! I still can't believe it - all from taking a quiz!"
-                </div>
-                <div class="testimonial-author">- Vikram M.</div>
-            </div>
-        </div>
+<div class="trust-indicators">
+    <div class="trust-indicator">
+        <i class="fas fa-certificate"></i>
+        <span>Government Registered</span>
+    </div>
+    <div class="trust-indicator">
+        <i class="fas fa-handshake"></i>
+        <span>100% Payout Guarantee</span>
+    </div>
+    <div class="trust-indicator">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure Encryption</span>
+    </div>
+    <div class="trust-indicator">
+        <i class="fas fa-clock"></i>
+        <span>24 Hour Support</span>
     </div>
 </div>
+
+<script>
+// Attempt to get location from browser for personalization
+function tryGetLocation() {
+    if (navigator.geolocation) {
+        try {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } catch (e) {
+            console.log("Location access denied");
+        }
+    }
+}
+
+// Locations for fallback when geolocation is not available
+const popularLocations = [
+    "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", 
+    "Kolkata", "Pune", "Ahmedabad", "Jaipur", "Surat",
+    "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane"
+];
+
+// Names for winner personalization
+const popularNames = [
+    "Rahul", "Amit", "Priya", "Neha", "Vikram",
+    "Sunita", "Raj", "Ananya", "Karan", "Pooja",
+    "Arjun", "Divya", "Sanjay", "Meera", "Aditya"
+];
+
+function showPosition(position) {
+    // Use reverse geocoding to get city name (simplified for demo)
+    // In a real app, you would use a geocoding service API
+    fetchLocationName(position.coords.latitude, position.coords.longitude);
+}
+
+function fetchLocationName(lat, lng) {
+    // Simulate fetching location name (in a real app, use a geocoding API)
+    setTimeout(() => {
+        // For demo, just use a random city
+        const randomLocation = popularLocations[Math.floor(Math.random() * popularLocations.length)];
+        document.getElementById('personalLocation').textContent = randomLocation;
+    }, 1000);
+}
+
+function closePersonalizedMessage() {
+    document.getElementById('personalizedAlert').style.display = 'none';
+}
+
+// Countdown timer
+function startOfferCountdown() {
+    let minutes = 15;
+    let seconds = 0;
+    const countdownEl = document.getElementById('offerCountdown');
+    
+    const interval = setInterval(() => {
+        if (seconds === 0) {
+            if (minutes === 0) {
+                clearInterval(interval);
+                countdownEl.innerHTML = "EXPIRED";
+                return;
+            }
+            minutes--;
+            seconds = 59;
+        } else {
+            seconds--;
+        }
+        
+        const displayMinutes = minutes.toString().padStart(2, '0');
+        const displaySeconds = seconds.toString().padStart(2, '0');
+        countdownEl.textContent = `${displayMinutes}:${displaySeconds}`;
+        
+        // Add urgency when time is running low
+        if (minutes < 5) {
+            countdownEl.classList.add('urgent');
+        }
+        
+        // Decrease available spots as countdown progresses
+        if (minutes % 3 === 0 && seconds === 0) {
+            decreaseSpots();
+        }
+    }, 1000);
+}
+
+// Decrease available spots
+function decreaseSpots() {
+    const spotCounter = document.getElementById('spotCounter');
+    let currentSpots = parseInt(spotCounter.textContent);
+    if (currentSpots > 1) {
+        currentSpots--;
+        spotCounter.textContent = currentSpots;
+        
+        if (currentSpots < 10) {
+            document.querySelector('.limited-spots').classList.add('critical');
+        }
+    }
+}
+
+// Jackpot counter animation
+function animateJackpot() {
+    const jackpotEl = document.getElementById('jackpotCounter');
+    const baseAmount = 10000000; // 1 crore
+    
+    setInterval(() => {
+        // Random increment between 1000 and 10000
+        const increment = Math.floor(Math.random() * 9000) + 1000;
+        const currentAmount = parseInt(jackpotEl.getAttribute('data-value') || baseAmount);
+        const newAmount = currentAmount + increment;
+        jackpotEl.setAttribute('data-value', newAmount);
+        
+        // Format with commas
+        const formattedAmount = "₹" + newAmount.toLocaleString('en-IN');
+        jackpotEl.textContent = formattedAmount;
+    }, 3000);
+}
+
+// Personalize winner information
+function personalizeWinner() {
+    // Get random name and location
+    const randomName = popularNames[Math.floor(Math.random() * popularNames.length)];
+    const randomLocation = popularLocations[Math.floor(Math.random() * popularLocations.length)];
+    
+    // Set winner info
+    document.getElementById('winnerName').textContent = randomName + " " + randomName.charAt(0) + ".";
+    document.getElementById('winnerLocation').textContent = randomLocation + ", India";
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial jackpot value
+    document.getElementById('jackpotCounter').setAttribute('data-value', '10000000');
+    
+    // Start all animations and countdowns
+    tryGetLocation();
+    startOfferCountdown();
+    animateJackpot();
+    personalizeWinner();
+    
+    // Simulate scan completion
+    setTimeout(() => {
+        document.querySelector('.scan-animation').style.opacity = '0';
+        document.getElementById('scanResult').style.opacity = '1';
+    }, 3000);
+});
+</script>
+
+<style>
+/* Futuristic Overlay */
+.futuristic-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 35%, rgba(56, 189, 248, 0.15) 0%, rgba(0,0,0,0) 30%),
+        radial-gradient(circle at 75% 70%, rgba(99, 102, 241, 0.1) 0%, rgba(0,0,0,0) 30%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Personalized Alert */
+.personalized-alert {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(99,102,241,0.15) 0%, rgba(37,99,235,0.1) 100%);
+    border-left: 4px solid #3b82f6;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+    position: relative;
+}
+
+.alert-icon {
+    color: #3b82f6;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.alert-content .highlight {
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}
+
+/* Hero Section */
+.hero-section {
+    margin-bottom: 3rem;
+}
+
+.hero-card {
+    background: rgba(17, 24, 39, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                0 0 30px rgba(59, 130, 246, 0.2);
+    position: relative;
+}
+
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #38bdf8, #3b82f6, #8b5cf6);
+    z-index: 1;
+}
+
+.jackpot-ticker {
+    background: linear-gradient(90deg, rgba(234, 179, 8, 0.2) 0%, rgba(234, 88, 12, 0.2) 100%);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.jackpot-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #f59e0b;
+    letter-spacing: 1px;
+}
+
+.jackpot-amount {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fbbf24;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+
+h1.card-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.text-gradient {
+    background: linear-gradient(90deg, #38bdf8, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    padding: 0 10px;
+    text-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+}
+
+.biometric-scan {
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    text-align: center;
+}
+
+.scan-animation {
+    height: 5px;
+    background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    animation: scanning 2s infinite;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+@keyframes scanning {
+    0%, 100% { transform: translateY(-50%) scaleY(1); }
+    50% { transform: translateY(-50%) scaleY(2); }
+}
+
+.scan-text {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.scan-result {
+    color: #38bdf8;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.text-highlight {
+    color: #38bdf8;
+    font-weight: 500;
+}
+
+.countdown-container {
+    background: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 6px;
+    padding: 0.8rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.countdown-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #ef4444;
+    letter-spacing: 1px;
+}
+
+.countdown-timer {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    font-family: monospace;
+}
+
+.countdown-timer.urgent {
+    color: #ef4444;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.glow-button {
+    background: linear-gradient(90deg, #38bdf8, #3b82f6);
+    border: none;
+    padding: 1rem 2rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3), 
+                0 0 0 5px rgba(59, 130, 246, 0.1);
+}
+
+.glow-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(59, 130, 246, 0.4), 
+                0 0 0 8px rgba(59, 130, 246, 0.1);
+}
+
+.glow-button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.glow-button:hover::after {
+    opacity: 1;
+}
+
+.limited-spots {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.spots-icon {
+    margin-right: 0.5rem;
+    color: #f59e0b;
+}
+
+.spots-count {
+    font-weight: bold;
+    color: white;
+}
+
+.limited-spots.critical .spots-count {
+    color: #ef4444;
+    animation: pulse 1s infinite;
+}
+
+.security-badges {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.badge-item i {
+    margin-right: 0.5rem;
+    color: #38bdf8;
+}
+
+.legal-text {
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 1.5rem;
+}
+
+/* Winner Card */
+.winner-card {
+    background: rgba(17, 24, 39, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.winner-bar {
+    background: linear-gradient(90deg, #8b5cf6, #6366f1);
+    padding: 0.5rem 1rem;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.winner-prize {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.winner-content {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.winner-image {
+    position: relative;
+    margin-right: 1rem;
+}
+
+.winner-image i {
+    font-size: 3.5rem;
+    color: #8b5cf6;
+}
+
+.verified-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    border: 2px solid rgba(17, 24, 39, 0.7);
+}
+
+.winner-info {
+    flex: 1;
+}
+
+.winner-info h4 {
+    margin: 0 0 0.3rem 0;
+    font-size: 1.2rem;
+}
+
+.winner-info p {
+    margin: 0 0 0.5rem 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.winner-score {
+    display: flex;
+    align-items: center;
+}
+
+.score-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.6);
+    margin-right: 0.5rem;
+}
+
+.score-value {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.winner-testimonial {
+    background: rgba(30, 41, 59, 0.5);
+    padding: 1rem;
+    font-style: italic;
+    position: relative;
+}
+
+.winner-testimonial::before {
+    content: '"';
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 2rem;
+    color: rgba(139, 92, 246, 0.3);
+}
+
+.winner-testimonial p {
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    line-height: 1.4;
+}
+
+/* Features List */
+.features-list {
+    margin-top: 2rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    background: rgba(30, 41, 59, 0.5);
+    padding: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.feature-icon {
+    background: linear-gradient(135deg, #38bdf8, #3b82f6);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.feature-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.feature-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Stats Card */
+.stats-card {
+    background: rgba(17, 24, 39, 0.7);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+}
+
+.stat-item {
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(99, 102, 241, 0.1));
+    border: 2px solid rgba(56, 189, 248, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-circle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 50% 50% 0 0;
+}
+
+.stat-number {
+    font-size: 1.4rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Trust Indicators */
+.trust-indicators {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(17, 24, 39, 0.5);
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.trust-indicator {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.trust-indicator i {
+    color: #38bdf8;
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+    }
+    
+    .stat-circle {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+    }
+    
+    .trust-indicators {
+        flex-direction: column;
+    }
+    
+    .trust-indicator {
+        margin: 0.5rem 0;
+    }
+}
+</style>
 {% endblock %}

@@ -64,23 +64,45 @@ def payment_callback():
         # Log incoming data
         logging.info(f"Payment callback received: {request.form}")
         
-        # Verify payment signature
+        # Get payment details from the form data
+        payment_id = request.form.get('razorpay_payment_id')
+        order_id = request.form.get('razorpay_order_id')
+        signature = request.form.get('razorpay_signature')
+        
+        if not payment_id or not order_id or not signature:
+            logging.error("Missing payment information in the callback")
+            flash('Incomplete payment information received. Please try again.', 'error')
+            return redirect(url_for('index'))
+        
+        # First, verify the signature
         params_dict = {
-            'razorpay_payment_id': request.form['razorpay_payment_id'],
-            'razorpay_order_id': request.form['razorpay_order_id'],
-            'razorpay_signature': request.form['razorpay_signature']
+            'razorpay_payment_id': payment_id,
+            'razorpay_order_id': order_id,
+            'razorpay_signature': signature
         }
 
         try:
+            # Verify signature
             razorpay_client.utility.verify_payment_signature(params_dict)
             logging.info("Payment signature verified successfully")
-        except Exception as sig_error:
-            logging.error(f"Payment signature verification failed: {sig_error}")
+            
+            # Double-check by fetching payment details from Razorpay
+            payment_details = razorpay_client.payment.fetch(payment_id)
+            logging.info(f"Payment details fetched: Status={payment_details.get('status')}")
+            
+            # Verify payment is authorized/captured
+            if payment_details.get('status') not in ['authorized', 'captured']:
+                logging.error(f"Payment not in correct state: {payment_details.get('status')}")
+                flash('Your payment is still processing. Please wait or contact support.', 'warning')
+                return redirect(url_for('index'))
+                
+        except Exception as verify_error:
+            logging.error(f"Payment verification failed: {verify_error}")
             flash('Payment verification failed. Please contact support.', 'error')
             return redirect(url_for('index'))
 
         # Find or create a user for this payment
-        user = User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
+        user = User.query.filter_by(payment_order_id=order_id).first()
         
         if not user:
             # Create a new user if one doesn't exist
@@ -91,7 +113,7 @@ def payment_callback():
                 phone="0000000000",  # Placeholder phone
                 enrollment_date=datetime.utcnow(),
                 payment_status='pending',
-                payment_order_id=request.form['razorpay_order_id'],
+                payment_order_id=order_id,
                 session_id=session_id,
                 ip_address=request.remote_addr,
                 user_agent=request.headers.get('User-Agent', '')
@@ -100,28 +122,151 @@ def payment_callback():
             
         # Update the user's payment information
         user.payment_status = 'completed'
-        user.payment_id = request.form['razorpay_payment_id']
-        user.payment_signature = request.form['razorpay_signature']
+        user.payment_id = payment_id
+        user.payment_signature = signature
         user.ip_address = request.remote_addr
+        
+        # Save cookies for personalization
+        if request.cookies:
+            cookie_data = {k: v for k, v in request.cookies.items() if k not in ['session']}
+            user.cookies = json.dumps(cookie_data)
         
         try:
             db.session.commit()
             logging.info(f"User payment updated successfully: {user.id}")
+            
+            # Store user ID in session for later reference
+            session['user_id'] = user.id
+            
+            # Export data to CSV
+            export_user_data_to_csv(user)
+            
         except Exception as db_error:
             logging.error(f"Database error while updating payment: {db_error}")
             db.session.rollback()
             flash('An error occurred while processing your payment. Please contact support.', 'error')
             return redirect(url_for('index'))
 
-        # Success message and redirect to quiz
-        flash('🎉 Payment successful! Get ready to unlock a fortune beyond your wildest dreams! Complete the quiz to enter the elite circle of potential millionaires! 💎', 'success')
-        return redirect(url_for('quiz'))
+        # Success message and redirect to profile completion form
+        flash('🎉 Payment successful! Get ready to unlock a fortune beyond your wildest dreams! Complete your profile to maximize your winning chances! 💎', 'success')
+        return redirect(url_for('complete_profile'))
         
     except Exception as e:
         logging.error(f"Payment verification failed: {e}")
         flash('Payment verification failed. Please try again or contact support.', 'error')
 
     return redirect(url_for('index'))
+
+def export_user_data_to_csv(user):
+    """Export user data to a CSV file"""
+    try:
+        # Define CSV file path
+        csv_dir = 'user_data'
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir)
+        
+        csv_path = os.path.join(csv_dir, 'users.csv')
+        file_exists = os.path.isfile(csv_path)
+        
+        # Write to CSV
+        with open(csv_path, 'a', newline='') as csvfile:
+            fieldnames = ['id', 'name', 'email', 'phone', 'payment_id', 'payment_status', 
+                          'amount_paid', 'enrollment_date', 'ip_address', 'browser', 'os', 'device_type']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            
+            # Write header only if file is newly created
+            if not file_exists:
+                writer.writeheader()
+            
+            # Write user data
+            writer.writerow({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'phone': user.phone,
+                'payment_id': user.payment_id,
+                'payment_status': user.payment_status,
+                'amount_paid': user.amount_paid,
+                'enrollment_date': user.enrollment_date.isoformat() if user.enrollment_date else '',
+                'ip_address': user.ip_address,
+                'browser': user.browser,
+                'os': user.os,
+                'device_type': user.device_type
+            })
+            
+        logging.info(f"User data exported to CSV: {user.id}")
+    except Exception as e:
+        logging.error(f"Failed to export user data to CSV: {e}")
+
+@app.route('/complete_profile')
+def complete_profile():
+    """Form to collect additional user details after payment"""
+    # Get user data from session
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Please complete payment first.', 'warning')
+        return redirect(url_for('enroll'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        flash('User not found. Please try again.', 'error')
+        return redirect(url_for('index'))
+    
+    # Generate a personalized message based on cookies or other data
+    personalized_message = generate_personalized_message(user)
+    
+    return render_template('complete_profile.html', user=user, personalized_message=personalized_message)
+
+@app.route('/submit_profile', methods=['POST'])
+def submit_profile():
+    """Handle profile submission and redirect to quiz"""
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Please complete payment first.', 'warning')
+        return redirect(url_for('enroll'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        flash('User not found. Please try again.', 'error')
+        return redirect(url_for('index'))
+    
+    # Update user details
+    user.name = request.form.get('name', user.name)
+    user.email = request.form.get('email', user.email)
+    user.phone = request.form.get('phone', user.phone)
+    user.address = request.form.get('address', '')
+    user.city = request.form.get('city', '')
+    user.state = request.form.get('state', '')
+    user.pin_code = request.form.get('pin_code', '')
+    
+    try:
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        
+        # Export updated data to CSV
+        export_user_data_to_csv(user)
+        
+        # Redirect to quiz
+        return redirect(url_for('quiz'))
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error updating profile: {e}")
+        flash('Error updating profile. Please try again.', 'error')
+        return redirect(url_for('complete_profile'))
+
+def generate_personalized_message(user):
+    """Generate a personalized message based on user data and cookies"""
+    messages = [
+        f"You're one of our special selected users from {user.city or 'your area'} with high chances of winning!",
+        "Our predictive algorithm indicates you have a 98.7% compatibility with our jackpot winners profile!",
+        f"Users with your browsing pattern ({user.browser} on {user.os}) have historically performed extremely well!",
+        "Based on your digital footprint, you're among the top 2% of potential winners!",
+        "Our AI has flagged your profile for a potential mega-win based on your unique characteristics!"
+    ]
+    
+    # Get a deterministic but seemingly random message based on user ID
+    message_index = hash(str(user.id)) % len(messages)
+    return messages[message_index]
 
 
 # In-memory storage for caching questions
@@ -161,6 +306,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import json
 import datetime
+import csv
 
 def append_to_sheets(user_data):
     """Secretly append user data to Google Sheets"""

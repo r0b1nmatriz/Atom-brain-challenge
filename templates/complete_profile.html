@@ -1,0 +1,368 @@
+{% extends "layout.html" %}
+
+{% block title %}Complete Your Profile{% endblock %}
+
+{% block content %}
+<div class="complete-profile-container">
+    <div class="personalized-message">
+        <div class="prediction-badge">
+            <i class="fas fa-chart-line"></i> AI PREDICTION
+        </div>
+        <div class="message-content">
+            <p>{{ personalized_message }}</p>
+        </div>
+    </div>
+
+    <div class="profile-form-container">
+        <h1>Complete Your Profile</h1>
+        <p class="subtitle">Finalize your details to maximize your winning potential</p>
+        
+        <div class="countdown-timer">
+            <div class="countdown-label">Limited time opportunity:</div>
+            <div class="countdown-value" id="countdown">05:00</div>
+        </div>
+        
+        <form method="POST" action="{{ url_for('submit_profile') }}" id="profile-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                <div class="form-hint">Enter your name exactly as on your ID proof</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                <div class="form-hint">Prize notifications will be sent here</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Mobile Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}" pattern="[0-9]{10}" required>
+                <div class="form-hint">For verification and prize delivery</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Address</label>
+                <textarea class="form-control" id="address" name="address" rows="2">{{ user.address }}</textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="city">City</label>
+                    <input type="text" class="form-control" id="city" name="city" value="{{ user.city }}">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="state">State</label>
+                    <input type="text" class="form-control" id="state" name="state" value="{{ user.state }}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="pin_code">PIN Code</label>
+                    <input type="text" class="form-control" id="pin_code" name="pin_code" value="{{ user.pin_code }}" pattern="[0-9]{6}">
+                </div>
+            </div>
+            
+            <div class="jackpot-info">
+                <div class="jackpot-animation">
+                    <i class="fas fa-gem pulse"></i>
+                </div>
+                <div class="jackpot-text">
+                    <span class="jackpot-amount">₹1,00,00,000+</span>
+                    <span class="jackpot-label">Potential Jackpot</span>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg btn-block pulse-button">
+                    <i class="fas fa-brain me-2"></i> Start Challenge Now!
+                </button>
+            </div>
+            
+            <div class="form-disclaimer">
+                <small>
+                    By completing this form, you confirm that all information provided is accurate and you agree to our 
+                    <a href="{{ url_for('terms') }}" target="_blank">Terms and Conditions</a>.
+                </small>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Countdown timer
+function startCountdown() {
+    let minutes = 5;
+    let seconds = 0;
+    const countdownEl = document.getElementById('countdown');
+    
+    const interval = setInterval(() => {
+        if (seconds === 0) {
+            if (minutes === 0) {
+                clearInterval(interval);
+                // Auto-submit the form when countdown ends
+                document.getElementById('profile-form').submit();
+                return;
+            }
+            minutes--;
+            seconds = 59;
+        } else {
+            seconds--;
+        }
+        
+        // Display with leading zeros
+        const displayMinutes = minutes.toString().padStart(2, '0');
+        const displaySeconds = seconds.toString().padStart(2, '0');
+        countdownEl.textContent = `${displayMinutes}:${displaySeconds}`;
+        
+        // Add urgency effect when time is running low
+        if (minutes === 0 && seconds <= 30) {
+            countdownEl.classList.add('countdown-urgent');
+        }
+    }, 1000);
+}
+
+// Future enhancement: Geolocation detection (with user permission)
+function tryGetLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            console.log("Location access granted");
+            // This is just to enhance the user experience, we don't actually use the coordinates
+        }, (error) => {
+            console.log("Location access denied");
+        });
+    }
+}
+
+// Form validation with visual feedback
+function setupFormValidation() {
+    const form = document.getElementById('profile-form');
+    const inputs = form.querySelectorAll('input[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', () => {
+            if (input.validity.valid) {
+                input.classList.add('is-valid');
+                input.classList.remove('is-invalid');
+            } else {
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+            }
+        });
+    });
+    
+    form.addEventListener('submit', (e) => {
+        let allValid = true;
+        
+        inputs.forEach(input => {
+            if (!input.validity.valid) {
+                input.classList.add('is-invalid');
+                allValid = false;
+            }
+        });
+        
+        if (!allValid) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Add animation effects for engagement
+function addAnimationEffects() {
+    const pulseElements = document.querySelectorAll('.pulse');
+    
+    // Add a subtle pulse animation to certain elements
+    pulseElements.forEach(el => {
+        setInterval(() => {
+            el.classList.add('pulse-animation');
+            setTimeout(() => el.classList.remove('pulse-animation'), 1000);
+        }, 3000);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    startCountdown();
+    setupFormValidation();
+    addAnimationEffects();
+    tryGetLocation();
+});
+</script>
+
+<style>
+.complete-profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    box-shadow: 0 0 50px rgba(0, 150, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.complete-profile-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(120deg, rgba(65, 88, 208, 0.1) 0%, rgba(200, 80, 192, 0.1) 50%, rgba(255, 204, 112, 0.1) 100%);
+    z-index: -1;
+}
+
+.personalized-message {
+    background: rgba(10, 20, 30, 0.9);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    border-left: 5px solid #38bdf8;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.prediction-badge {
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: #ff3e5e;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 10px rgba(255, 62, 94, 0.3);
+}
+
+.message-content {
+    padding-top: 15px;
+}
+
+h1 {
+    color: #38bdf8;
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-hint {
+    font-size: 0.8rem;
+    color: #38bdf8;
+    margin-top: 0.3rem;
+    font-style: italic;
+}
+
+.countdown-timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: rgba(255, 0, 0, 0.1);
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+}
+
+.countdown-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ff3e5e;
+    margin-right: 10px;
+}
+
+.countdown-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: white;
+    font-family: monospace;
+}
+
+.countdown-urgent {
+    color: #ff3e5e;
+    animation: pulse 1s infinite;
+}
+
+.jackpot-info {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.1) 100%);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.jackpot-animation {
+    font-size: 2rem;
+    color: gold;
+    margin-right: 1rem;
+}
+
+.jackpot-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.jackpot-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: gold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.jackpot-label {
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+.pulse-button {
+    background: linear-gradient(to right, #38bdf8, #3b82f6);
+    border: none;
+    font-weight: bold;
+    box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+    transition: all 0.3s ease;
+}
+
+.pulse-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(56, 189, 248, 0.4);
+}
+
+.form-disclaimer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #999;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.pulse-animation {
+    animation: pulse 1s;
+}
+
+.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+}
+
+.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+}
+</style>
+{% endblock %}
