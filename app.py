@@ -433,6 +433,7 @@ def admin(display=None):
     )
 
 @app.route('/export-data')
+@app.route('/export_data')
 def export_data():
     """Export all quiz data as CSV"""
     try:

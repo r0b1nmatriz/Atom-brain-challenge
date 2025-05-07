@@ -2,6 +2,11 @@
 
 {% block title %}Admin Dashboard{% endblock %}
 
+{% block head_content %}
+<!-- Chart.js for visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="admin-dashboard">
     <div class="card admin-card">
@@ -121,6 +126,11 @@
                     <a href="{{ url_for('index') }}" class="btn btn-primary">
                         <i class="fas fa-home me-2"></i> Back to Homepage
                     </a>
+                    
+                    <a href="{{ url_for('export_data') }}" class="btn btn-success">
+                        <i class="fas fa-file-csv me-2"></i> Export Data (CSV)
+                    </a>
+                    
                     {% if display_mode != 'all' %}
                     <a href="{{ url_for('admin', display='all') }}" class="btn btn-info">
                         <i class="fas fa-list me-2"></i> View All Data
@@ -135,4 +145,193 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize charts if data is available
+        const chartData = {{ chart_data|safe }};
+        
+        // Score distribution chart
+        if (chartData && chartData.score_distribution) {
+            const scoreCtx = document.createElement('canvas');
+            scoreCtx.id = 'scoreChart';
+            
+            // Replace placeholder with canvas
+            const scorePlaceholder = document.querySelector('.chart-placeholder');
+            if (scorePlaceholder) {
+                scorePlaceholder.innerHTML = '';
+                scorePlaceholder.appendChild(scoreCtx);
+                
+                // Prepare data
+                const scores = chartData.score_distribution.map(item => item.score);
+                const counts = chartData.score_distribution.map(item => item.count);
+                
+                new Chart(scoreCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: scores,
+                        datasets: [{
+                            label: 'Score Distribution',
+                            data: counts,
+                            backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                            borderColor: 'rgba(56, 189, 248, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.8)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Add more charts for personality types, devices, browsers, etc.
+        // Create a row for more charts
+        const adminCard = document.querySelector('.admin-card .card-body');
+        if (adminCard && chartData) {
+            const chartRow = document.createElement('div');
+            chartRow.className = 'row charts-row mt-4';
+            
+            // Personality Types Chart
+            if (chartData.personality_types && chartData.personality_types.length > 0) {
+                const personalityCol = document.createElement('div');
+                personalityCol.className = 'col-md-6 mb-4';
+                personalityCol.innerHTML = `
+                    <div class="chart-container">
+                        <h4 class="section-title"><i class="fas fa-brain me-2"></i> Personality Types</h4>
+                        <div class="chart-inner">
+                            <canvas id="personalityChart"></canvas>
+                        </div>
+                    </div>
+                `;
+                chartRow.appendChild(personalityCol);
+                
+                // Add the chart after appending to DOM
+                adminCard.appendChild(chartRow);
+                
+                // Create the personality chart
+                const personalityCtx = document.getElementById('personalityChart');
+                const personalityLabels = chartData.personality_types.map(item => item.type);
+                const personalityCounts = chartData.personality_types.map(item => item.count);
+                
+                new Chart(personalityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: personalityLabels,
+                        datasets: [{
+                            data: personalityCounts,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.8)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Device Types Chart
+            if (chartData.devices && chartData.devices.length > 0) {
+                const deviceCol = document.createElement('div');
+                deviceCol.className = 'col-md-6 mb-4';
+                deviceCol.innerHTML = `
+                    <div class="chart-container">
+                        <h4 class="section-title"><i class="fas fa-mobile-alt me-2"></i> Device Types</h4>
+                        <div class="chart-inner">
+                            <canvas id="deviceChart"></canvas>
+                        </div>
+                    </div>
+                `;
+                chartRow.appendChild(deviceCol);
+                
+                // Create the device chart
+                const deviceCtx = document.getElementById('deviceChart');
+                const deviceLabels = chartData.devices.map(item => item.type);
+                const deviceCounts = chartData.devices.map(item => item.count);
+                
+                new Chart(deviceCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: deviceLabels,
+                        datasets: [{
+                            data: deviceCounts,
+                            backgroundColor: [
+                                'rgba(46, 204, 113, 0.7)',
+                                'rgba(52, 152, 219, 0.7)',
+                                'rgba(155, 89, 182, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(46, 204, 113, 1)',
+                                'rgba(52, 152, 219, 1)',
+                                'rgba(155, 89, 182, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.8)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+</script>
 {% endblock %}

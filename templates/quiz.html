@@ -32,7 +32,7 @@
                     <div class="options-container">
                         {% for j in range(4) %}
                         {% set option = ['A', 'B', 'C', 'D'][j] %}
-                        <div class="form-check option-item">
+                        <div class="form-check option-item quiz-option">
                             <input class="form-check-input" type="radio" name="q{{ i }}" id="q{{ i }}option{{ option }}" value="{{ option }}" required>
                             <label class="form-check-label" for="q{{ i }}option{{ option }}">
                                 <span class="option-letter">{{ option }}</span>
@@ -44,17 +44,17 @@
                     
                     <div class="question-navigation mt-4">
                         {% if i > 0 %}
-                        <button type="button" class="btn btn-outline-secondary prev-btn" onclick="showQuestion({{ i-1 }})">
+                        <button type="button" class="btn btn-outline-secondary prev-btn glow-button" onclick="showQuestion({{ i-1 }})">
                             <i class="fas fa-arrow-left me-2"></i> Previous
                         </button>
                         {% endif %}
                         
                         {% if i < questions|length - 1 %}
-                        <button type="button" class="btn btn-primary next-btn" onclick="nextQuestion({{ i }})">
+                        <button type="button" class="btn btn-primary next-btn glow-button" onclick="nextQuestion({{ i }})">
                             Next <i class="fas fa-arrow-right ms-2"></i>
                         </button>
                         {% else %}
-                        <button type="submit" class="btn btn-success submit-btn">
+                        <button type="submit" class="btn btn-success submit-btn glow-button">
                             <i class="fas fa-check-circle me-2"></i> Submit Answers
                         </button>
                         {% endif %}
@@ -114,13 +114,38 @@
     startTimer();
     
     function showQuestion(index) {
-        // Hide all questions
+        // Hide all questions with fade out effect
         document.querySelectorAll('.question-container').forEach(q => {
-            q.style.display = 'none';
+            q.style.opacity = '0';
+            q.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                q.style.display = 'none';
+            }, 300);
         });
         
-        // Show the selected question
-        document.getElementById('question' + index).style.display = 'block';
+        // Show the selected question with fade in effect
+        setTimeout(() => {
+            const selectedQuestion = document.getElementById('question' + index);
+            selectedQuestion.style.display = 'block';
+            
+            // Trigger reflow for animation
+            void selectedQuestion.offsetWidth;
+            
+            selectedQuestion.style.opacity = '1';
+            selectedQuestion.style.transform = 'translateY(0)';
+            
+            // Apply animation to options
+            const options = selectedQuestion.querySelectorAll('.quiz-option');
+            options.forEach((option, i) => {
+                option.style.opacity = '0';
+                option.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    option.style.opacity = '1';
+                    option.style.transform = 'translateX(0)';
+                }, 100 + (i * 100)); // Staggered animation for options
+            });
+        }, 350);
         
         // Scroll to top of quiz container
         document.querySelector('.quiz-container').scrollIntoView({ behavior: 'smooth' });
