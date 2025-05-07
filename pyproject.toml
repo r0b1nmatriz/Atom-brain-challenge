@@ -16,6 +16,8 @@ dependencies = [
     "razorpay>=1.4.2",
     "sqlalchemy>=2.0.40",
     "flask-login>=0.6.3",
+    "wtforms>=3.2.1",
+    "werkzeug>=3.1.3",
 ]
 
 [[tool.uv.index]]

@@ -7,6 +7,7 @@ import json
 from urllib.parse import quote
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file, Response
+from flask_login import current_user, login_required
 from quiz_generator import generate_quiz_questions
 from image_generator import create_result_image
 
@@ -15,8 +16,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Flask application
 app = Flask(__name__)
-# Set a hard-coded secret key
-app.secret_key = "hardbrainchallenge123456789"
+# Set the secret key from environment variables or use a fallback for development
+app.secret_key = os.environ.get("SESSION_SECRET", "hardbrainchallenge123456789")
 
 # Initialize database
 from database import db, init_db

@@ -20,6 +20,72 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
     
+    <style>
+        /* Authentication Styles */
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-buttons .btn {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        
+        .nav-buttons .btn-outline-light {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .nav-buttons .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .nav-buttons .btn-primary {
+            background: linear-gradient(90deg, #38bdf8, #3b82f6);
+            border: none;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .nav-buttons .btn-primary:hover {
+            background: linear-gradient(90deg, #0ea5e9, #2563eb);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+        
+        .dropdown-menu {
+            background: rgba(17, 24, 39, 0.95);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: white;
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            color: #38bdf8;
+        }
+        
+        .dropdown-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    
     {% block head_content %}{% endblock %}
 </head>
 <body>
@@ -27,12 +93,34 @@
         <header class="mb-4">
             <div class="header-container">
                 <div class="header-particles" id="header-particles"></div>
-                <div class="d-flex flex-column flex-md-row align-items-center py-3 px-4">
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between py-3 px-4 w-100">
                     <a href="/" class="d-flex align-items-center text-decoration-none">
                         <span class="fs-4 fw-bold brain-title">
                             <i class="fas fa-brain brain-icon"></i> Atom Brain Challenge
                         </span>
                     </a>
+                    
+                    <div class="nav-buttons">
+                        {% if current_user.is_authenticated %}
+                            <div class="dropdown">
+                                <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-2"></i>{{ current_user.username }}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('quiz') }}"><i class="fas fa-brain me-2"></i>Take Quiz</a></li>
+                                    {% if current_user.is_admin %}
+                                    <li><a class="dropdown-item" href="{{ url_for('admin') }}"><i class="fas fa-cog me-2"></i>Admin Panel</a></li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Sign Out</a></li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light me-2">Sign In</a>
+                            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">Sign Up</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </header>
