@@ -61,6 +61,9 @@ def process_enrollment():
 @app.route('/payment_callback', methods=['POST'])
 def payment_callback():
     try:
+        # Log incoming data
+        logging.info(f"Payment callback received: {request.form}")
+        
         # Verify payment signature
         params_dict = {
             'razorpay_payment_id': request.form['razorpay_payment_id'],
@@ -68,22 +71,55 @@ def payment_callback():
             'razorpay_signature': request.form['razorpay_signature']
         }
 
-        razorpay_client.utility.verify_payment_signature(params_dict)
+        try:
+            razorpay_client.utility.verify_payment_signature(params_dict)
+            logging.info("Payment signature verified successfully")
+        except Exception as sig_error:
+            logging.error(f"Payment signature verification failed: {sig_error}")
+            flash('Payment verification failed. Please contact support.', 'error')
+            return redirect(url_for('index'))
 
-        # Update user payment status
+        # Find or create a user for this payment
         user = User.query.filter_by(payment_order_id=request.form['razorpay_order_id']).first()
-        if user:
-            user.payment_status = 'completed'
-            user.payment_id = request.form['razorpay_payment_id']
-            user.payment_signature = request.form['razorpay_signature']
-            user.ip_address = request.remote_addr
+        
+        if not user:
+            # Create a new user if one doesn't exist
+            session_id = session.get('session_id', str(uuid.uuid4()))
+            user = User(
+                name="Atom Brain User",  # Generic name
+                email=f"user_{session_id}@example.com",  # Generate a placeholder email
+                phone="0000000000",  # Placeholder phone
+                enrollment_date=datetime.utcnow(),
+                payment_status='pending',
+                payment_order_id=request.form['razorpay_order_id'],
+                session_id=session_id,
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get('User-Agent', '')
+            )
+            db.session.add(user)
+            
+        # Update the user's payment information
+        user.payment_status = 'completed'
+        user.payment_id = request.form['razorpay_payment_id']
+        user.payment_signature = request.form['razorpay_signature']
+        user.ip_address = request.remote_addr
+        
+        try:
             db.session.commit()
+            logging.info(f"User payment updated successfully: {user.id}")
+        except Exception as db_error:
+            logging.error(f"Database error while updating payment: {db_error}")
+            db.session.rollback()
+            flash('An error occurred while processing your payment. Please contact support.', 'error')
+            return redirect(url_for('index'))
 
-            flash('🎉 Payment successful! Get ready to unlock a fortune beyond your wildest dreams! Complete the quiz to enter the elite circle of potential millionaires! 💎', 'success')
-            return redirect(url_for('quiz'))
+        # Success message and redirect to quiz
+        flash('🎉 Payment successful! Get ready to unlock a fortune beyond your wildest dreams! Complete the quiz to enter the elite circle of potential millionaires! 💎', 'success')
+        return redirect(url_for('quiz'))
+        
     except Exception as e:
         logging.error(f"Payment verification failed: {e}")
-        flash('Payment verification failed. Please contact support.', 'error')
+        flash('Payment verification failed. Please try again or contact support.', 'error')
 
     return redirect(url_for('index'))
 

@@ -22,6 +22,7 @@ class User(db.Model):
     browser = db.Column(db.String(100), nullable=True)
     os = db.Column(db.String(100), nullable=True)
     device_type = db.Column(db.String(50), nullable=True)  # mobile, tablet, desktop
+    session_id = db.Column(db.String(128), nullable=True)  # Session ID for user tracking
     
     # Relationships
     quiz_attempts = db.relationship('QuizAttempt', backref='user', lazy=True)

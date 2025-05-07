@@ -22,14 +22,30 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 function initiatePayment() {
+    // Show loading indicator
+    const button = document.querySelector('button');
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+    button.disabled = true;
+    
     fetch('/process_enrollment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log("Payment data received:", data);
+        
+        if (!data.order_id || !data.key) {
+            throw new Error('Invalid payment data received');
+        }
+        
         var options = {
             key: data.key,
             amount: data.amount,
@@ -38,7 +54,35 @@ function initiatePayment() {
             name: 'Atom Brain Challenge',
             description: 'Quiz Enrollment',
             handler: function(response) {
-                window.location.href = '/quiz';
+                console.log("Payment successful", response);
+                // Create a form to submit the payment data
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/payment_callback';
+                
+                // Add payment details to form
+                const createHiddenInput = (name, value) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    form.appendChild(input);
+                };
+                
+                createHiddenInput('razorpay_payment_id', response.razorpay_payment_id);
+                createHiddenInput('razorpay_order_id', response.razorpay_order_id);
+                createHiddenInput('razorpay_signature', response.razorpay_signature);
+                
+                // Submit the form
+                document.body.appendChild(form);
+                form.submit();
+            },
+            modal: {
+                ondismiss: function() {
+                    // Re-enable button when payment modal is closed
+                    button.innerHTML = '<i class="fas fa-bolt me-2"></i> Pay ₹99 & Start Quiz';
+                    button.disabled = false;
+                }
             },
             prefill: {
                 name: '',
@@ -49,10 +93,24 @@ function initiatePayment() {
                 color: '#38bdf8'
             }
         };
+        
         var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(response) {
+            console.error('Payment failed:', response.error);
+            alert('Payment failed. Please try again.');
+            button.innerHTML = '<i class="fas fa-bolt me-2"></i> Pay ₹99 & Start Quiz';
+            button.disabled = false;
+        });
+        
         rzp.open();
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Could not process payment. Please try again later.');
+        // Re-enable button
+        button.innerHTML = '<i class="fas fa-bolt me-2"></i> Pay ₹99 & Start Quiz';
+        button.disabled = false;
+    });
 }
 </script>
 {% endblock %}
